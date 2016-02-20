@@ -1,0 +1,6 @@
+src/main/webapp
+target
+*.txt
+*.html
+*.txt~
+*.html~

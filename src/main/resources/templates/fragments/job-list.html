@@ -1,0 +1,29 @@
+<form id="form-busca-paginas" th:action="@{/job-list/1}" method="GET">
+    
+    <h3>Busca</h3>
+
+    <label for="email">Assunto</label>
+    <input type="text" class="form-control" placeholder="assunto" name="assunto"  th:value="${#httpServletRequest.getParameter('assunto')}" />
+
+    <input type="submit" class="btn btn-default" value="Buscar"/>
+    
+</form>
+
+<table th:if="${page.numberOfElements > 0}" class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Assunto</th>
+            <th>Total de Envios</th>
+            <th>Criado em</th>
+            <th>Terminado</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="job : ${page.content}">
+            <td th:text="${job.mail.subject}">Onions</td>
+            <td th:text="${job.mail.countEnviados} + ' de ' + ${job.mail.countTotal}">2.41</td>
+            <td th:text="${#temporals.format(job.criadoem, 'dd/MMM/yyyy HH:mm')}">2.41</td>
+            <td th:text="${job.terminated}? 'Sim' : 'Não'">yes</td>
+        </tr>
+    </tbody>
+</table>

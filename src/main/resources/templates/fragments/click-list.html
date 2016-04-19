@@ -1,0 +1,31 @@
+<form id="form-busca-paginas" th:action="@{/click-list/1}" method="GET">
+    <h3>Busca</h3>
+
+    <label for="email">Email</label>
+    <input type="text" class="form-control" placeholder="email" name="email" th:value="${#httpServletRequest.getParameter('email')}" />
+
+    <label for="url">URL</label>
+    <input type="text" class="form-control" placeholder="url" name="url" th:value="${#httpServletRequest.getParameter('url')}" />
+
+    <input type="submit" class="btn btn-default" value="Buscar"/>
+
+</form>
+
+<table th:if="${page.numberOfElements > 0}" class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>#</th>
+            <th>Data</th>
+            <th>Email</th>
+            <th>URL</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:each="click : ${page.content}">
+            <td th:text="${click.link.job.links.indexOf(click.link) + 1}">Onions</td>
+            <td th:text="${#temporals.format(click.dataclick, 'dd/MMM/yyyy HH:mm')}">2.41</td>
+            <td th:text="${click.conta.email}">2.41</td>
+            <td th:text="${click.link.url}">sim</td>
+        </tr>
+    </tbody>
+</table>

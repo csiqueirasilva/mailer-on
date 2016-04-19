@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
+        <title>Mailer ON</title>
+
+        <link th:href="@{/css/bootstrap.css}" type="text/css" rel="stylesheet" />
+
+        <script th:src="@{/lib/jquery.min.js}"></script>
+        <script th:src="@{/lib/bootstrap.js}"></script>
+
+        <style>
+            .submit-button {
+                margin-top: 1%;
+            }
+
+            #lista-retorno-emails {
+                overflow: auto;
+                height: 70%;
+            }
+
+            iframe {
+                height: 0px;
+                width: 0px;
+                border: 0px;
+            }
+
+            .navbar-nav li a:hover {
+                cursor: pointer;
+            }
+
+            .opcao-estatistica {
+                margin-top: 30px;
+                text-align: center;
+            }
+
+            #form-busca-paginas > * {
+                margin-top: 10px;
+            }
+            
+            #form-busca-paginas {
+                margin-bottom: 18px;
+            }
+            
+        </style>
+
+    </head>
+    <body>
+        <div class="container">
+
+            <nav class="navbar navbar-default">
+                <div class="container-fluid">
+                    <div class="navbar-header">
+                        <a class="navbar-brand" th:href="@{/}">Mailer ON</a>
+                    </div>
+                    <div id="navbar" class="navbar-collapse collapse">
+                        <ul class="nav navbar-nav">
+                            <li><a th:href="@{/email-em-massa}">Email em Massa</a></li>
+                            <li><a th:href="@{/email-teste}">Email de Teste</a></li>
+                            <li><a th:href="@{/carregar-base-dados}">Carregar base de dados</a></li>
+                            <li><a th:href="@{/estatisticas}">Estatísticas</a></li>
+                        </ul>
+                    </div>
+                </div>
+            </nav>
+
+            <iframe name="formtarget" id="formtarget"></iframe>
+
+            <div id="email-em-massa" class="panel panel-default hidden">
+                <div class="panel-heading">
+                    <h1>Email em massa</h1>
+                </div>
+                <div class="panel-body">
+
+                    <form method="POST" action="send-mail-list" id="email-form" target="formtarget" enctype="multipart/form-data">
+
+                        <div class="col-md-12 form-group">
+                            <label for="arquivo">Email em HTML</label>
+                            <input type="file" id="arquivo" name="arquivo" />
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                            <label for="assunto">Assunto</label>
+                            <input type="text" class="form-control" id="assunto" name="assunto" placeholder="Assunto" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <button class="btn btn-default submit-button" id="submit">ENVIAR</button>
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <div id="email-teste" class="panel panel-default hidden">
+                <div class="panel-heading">
+                    <h1>Email de Teste</h1>
+                </div>
+                <div class="panel-body">
+
+                    <form method="POST" action="send-debug-mail-list" id="email-form" target="formtarget" enctype="multipart/form-data">
+
+                        <div class="col-md-12 form-group">
+                            <label for="arquivo">Email em HTML</label>
+                            <input type="file" id="arquivo" name="arquivo" />
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                            <label for="destino">Email Teste</label>
+                            <input type="email" class="form-control" id="destino" name="destino" placeholder="Entre com um email para teste" />
+                        </div>
+
+                        <div class="col-md-12 form-group">
+                            <label for="assunto">Assunto</label>
+                            <input type="text" class="form-control" id="assunto" name="assunto" placeholder="Assunto" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <button class="btn btn-default submit-button" id="submit">ENVIAR</button>
+                        </div>
+
+                    </form>
+
+                </div>
+            </div>
+
+            <div id="carregar-base-dados" class="panel panel-default hidden">
+                <div class="panel-heading">
+                    <h1>Carregar base de dados</h1>
+                </div>
+                <div class="panel-body">
+
+                    <form method="POST" action="load-mail-list" id="email-form" th:action="@{/load-mail-list}" target="formtarget" enctype="multipart/form-data">
+
+                        <div class="col-md-12 form-group">
+                            <label for="arquivo">Arquivo Fonte</label>
+                            <input type="file" id="arquivo" name="arquivo" />
+                        </div>
+
+                        <div class="col-md-12">
+                            <button class="btn btn-default submit-button" id="submit">ENVIAR</button>
+                        </div>
+
+                    </form>
+
+                </div>
+
+            </div>
+
+            <div id="estatisticas" class="panel panel-default hidden">
+
+                <div class="panel-heading">
+                    <h1>Estatísticas</h1>
+                </div>
+
+                <div class="panel-body">
+
+                    <h3>Existem <span th:text="${totalLinks}">0</span> links enviados, dos quais <span th:text="${totalLinksClicados}">0</span> foram clicados.</h3>
+                    <h3>Um total de <span th:text="${totalContas}">0</span> contas cadastradas.</h3>
+                    <h3>Sendo <span th:text="${contasInativas}">0</span> contas inativas e <span th:text="${contasAtivas}">0</span> contas ativas.</h3>
+
+                    <div class="container">
+                        <div class="row">
+
+                            <div class="opcao-estatistica col-md-4">
+                                <a th:href="@{/job-list}">
+                                    <img th:class="img-circle" th:src="@{/img/jobs.png}" />
+                                </a>
+                            </div>
+
+                            <div class="opcao-estatistica col-md-4">
+                                <a th:href="@{/conta-list}">
+                                    <img th:class="img-circle" th:src="@{/img/contas.png}" />
+                                </a>
+                            </div>
+
+                            <div class="opcao-estatistica col-md-4">
+                                <a th:href="@{/link-list}">
+                                    <img th:class="img-circle" th:src="@{/img/links.png}" />
+                                </a>
+                            </div>
+
+                            <div class="opcao-estatistica col-md-4">
+                                <a th:href="@{/click-list}">
+                                    <img th:class="img-circle" th:src="@{/img/clicks.png}" />
+                                </a>
+                            </div>
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            <div th:if="${pagina == 'pagination'}" id="pagination" class="panel panel-default hidden">
+
+                <div class="panel-heading" th:with="indexInicioElementos=${(currentIndex - 1) * paginationSize + 1}">
+                    <h1 th:if="${page.numberOfElements > 0}" th:text="@{'Exibindo elementos ' + ${indexInicioElementos} + ' até ' + ${indexInicioElementos + page.numberOfElements - 1} + ' de um total de ' + ${page.totalElements} + ' ' + ${paginationTitle}}"></h1>
+                    <h1 th:if="${page.numberOfElements == 0}" th:text="@{${page.totalElements} + ' ' + ${paginationTitle}}"></h1>
+                </div>
+
+                <div class="panel-body">
+
+                    <!-- http://stackoverflow.com/questions/18490820/spring-thymeleaf-how-to-implement-pagination-for-a-list -->
+                    <div th:if="${page.totalElements != 0}" class="table-pagination">
+                        <ul class='pagination'>
+                            <li th:class="${page.number == 0} ? 'disabled' : ''">
+                                <a aria-label="Anterior" th:if="${not page.first}" th:href="@{'/' + ${paginationUrl} + '/' + ${page.number} + '?' + ${queryString != null ? queryString : ''}}">&laquo;</a>
+                                <a aria-label="Anterior" th:if="${page.first}">&laquo;</a>
+                            </li>
+
+                            <li th:each="pageNo : ${#numbers.sequence(1, page.totalPages)}" th:class="${(page.number + 1) == pageNo}? 'active' : ''">
+                                <a th:if="${(page.number + 1) == pageNo}">
+                                    <span th:text="${pageNo}"></span>
+                                </a>
+                                <a th:if="${not ((page.number + 1) == pageNo)}" th:href="@{'/' + ${paginationUrl} + '/' + ${pageNo} + '?' + ${queryString != null ? queryString : ''}}">
+                                    <span th:text="${pageNo}"></span>
+                                </a>
+                            </li>
+
+                            <li th:class="${page.number + 1 >= page.totalPages} ? 'disabled' : ''">
+                                <a aria-label="Próximo" th:if="${not page.last}" th:href="@{'/' + ${paginationUrl} + '/' + ${page.number + 2} + '?' + ${queryString != null ? queryString : ''}}">&raquo;</a>
+                                <a aria-label="Próximo" th:if="${page.last}">&raquo;</a>
+                            </li>
+                        </ul>
+                    </div>
+
+                    <div th:replace="'fragments/' + ${paginationUrl}">
+                    </div>
+
+                    <div th:if="${page.totalElements == 0}">
+                        <h1>Não há elementos para exibição.</h1>
+                    </div>
+
+                </div>
+
+            </div>
+
+        </div>
+
+        <script th:inline="javascript">
+            /*<![CDATA[*/
+
+            $('.panel').hide();
+
+            function alertaCarregarBaseDeDados(val) {
+                alert("Inseridos: " + val);
+            }
+
+            function alertaEmailTeste(val) {
+                alert(val);
+            }
+
+            function alertaEmailMassa(val) {
+                alert(val);
+            }
+
+            var pagina = /*[[${pagina}]]*/ "estatisticas";
+            $('#' + pagina).removeClass('hidden').show();
+
+            $('.panel').not(':visible').remove();
+
+            /*]]>*/
+        </script>
+
+    </body>
+</html>

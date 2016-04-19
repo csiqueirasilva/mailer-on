@@ -1,0 +1,28 @@
+<form id="form-busca-paginas" th:action="@{/conta-list/1}" method="GET">
+    <h3>Busca</h3>
+
+    <label for="email">Email</label>
+    <input type="text" class="form-control" placeholder="email" name="email" th:value="${#httpServletRequest.getParameter('email')}" />
+
+    <input type="submit" class="btn btn-default" value="Buscar"/>
+
+</form>
+
+<table th:if="${page.numberOfElements > 0}" class="table table-striped table-hover">
+    <thead>
+        <tr>
+            <th>Email</th>
+            <th>Adicionado em</th>
+            <th>Editado em</th>
+            <th>Ativado</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr th:class="${conta.enabled}? 'active' : 'danger'" th:each="conta : ${page.content}">
+            <td th:text="${conta.email}">Onions</td>
+            <td th:text="${#temporals.format(conta.criadoem, 'dd/MMM/yyyy HH:mm')}">2.41</td>
+            <td th:text="${#temporals.format(conta.editadoem, 'dd/MMM/yyyy HH:mm')}">2.41</td>
+            <td th:text="${conta.enabled}? 'sim' : 'não'">sim</td>
+        </tr>
+    </tbody>
+</table>

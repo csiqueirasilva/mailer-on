@@ -1,4 +1,7 @@
 src/main/webapp
 target
+.settings
+.classpath
+.project
 *.txt~
 *.html~

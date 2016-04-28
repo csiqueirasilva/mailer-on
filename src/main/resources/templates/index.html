@@ -249,20 +249,28 @@
 
             function alertaCarregarBaseDeDados(val) {
                 alert("Inseridos: " + val);
+                location.reload();
             }
 
             function alertaEmailTeste(val) {
                 alert(val);
+                location.reload();
             }
 
             function alertaEmailMassa(val) {
                 alert(val);
+                location.reload();
             }
 
             var pagina = /*[[${pagina}]]*/ "estatisticas";
             $('#' + pagina).removeClass('hidden').show();
 
             $('.panel').not(':visible').remove();
+
+            $('form').on('submit', function() {
+                $('.submit-button').attr('disabled', true);
+                $('.submit-button').html('ENVIANDO...');
+            });
 
             /*]]>*/
         </script>

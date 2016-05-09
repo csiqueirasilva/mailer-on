@@ -41,7 +41,7 @@ import org.springframework.ui.ModelMap;
  *
  * @author csiqueira
  */
-@PropertySource("file:/opt/mailer.properties")
+@PropertySource("classpath:mailer.properties")
 @Service
 public class JobDLO {
 

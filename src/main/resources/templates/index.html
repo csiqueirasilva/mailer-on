@@ -5,9 +5,13 @@
         <title>Mailer ON</title>
 
         <link th:href="@{/css/bootstrap.css}" type="text/css" rel="stylesheet" />
+        <link th:href="@{/css/bootstrap-tagsinput.css}" type="text/css" rel="stylesheet" />
 
         <script th:src="@{/lib/jquery.min.js}"></script>
         <script th:src="@{/lib/bootstrap.js}"></script>
+
+		<script th:src="@{/lib/typeahead.js}"></script>
+        <script th:src="@{/lib/bootstrap-tagsinput.min.js}"></script>
 
         <style>
             .submit-button {
@@ -37,11 +41,15 @@
             #form-busca-paginas > * {
                 margin-top: 10px;
             }
-            
+
             #form-busca-paginas {
                 margin-bottom: 18px;
             }
-            
+
+			.bootstrap-tagsinput {
+				width: 100%;
+			}
+			
         </style>
 
     </head>
@@ -72,7 +80,7 @@
                 </div>
                 <div class="panel-body">
 
-                    <form method="POST" action="send-mail-list" id="email-form" target="formtarget" enctype="multipart/form-data">
+                    <form onkeypress="return event.keyCode !== 13;" method="POST" action="send-mail-list" id="email-form" target="formtarget" enctype="multipart/form-data">
 
                         <div class="col-md-12 form-group">
                             <label for="arquivo">Email em HTML</label>
@@ -85,7 +93,7 @@
                         </div>
 
                         <div class="col-md-12">
-                            <button class="btn btn-default submit-button" id="submit">ENVIAR</button>
+                            <button type="submit" class="btn btn-default submit-button">ENVIAR</button>
                         </div>
 
                     </form>
@@ -100,7 +108,7 @@
                 </div>
                 <div class="panel-body">
 
-                    <form method="POST" action="send-debug-mail-list" id="email-form" target="formtarget" enctype="multipart/form-data">
+                    <form onkeypress="return event.keyCode !== 13;" method="POST" action="send-debug-mail-list" id="email-form" target="formtarget" enctype="multipart/form-data">
 
                         <div class="col-md-12 form-group">
                             <label for="arquivo">Email em HTML</label>
@@ -118,9 +126,9 @@
                         </div>
 
                         <div class="col-md-12">
-                            <button class="btn btn-default submit-button" id="submit">ENVIAR</button>
+                            <button type="submit" class="btn btn-default submit-button">ENVIAR</button>
                         </div>
-
+						
                     </form>
 
                 </div>
@@ -132,17 +140,22 @@
                 </div>
                 <div class="panel-body">
 
-                    <form method="POST" action="load-mail-list" id="email-form" th:action="@{/load-mail-list}" target="formtarget" enctype="multipart/form-data">
+                    <form onkeypress="return event.keyCode !== 13;" method="POST" action="load-mail-list" id="email-form" th:action="@{/load-mail-list}" target="formtarget" enctype="multipart/form-data">
 
                         <div class="col-md-12 form-group">
                             <label for="arquivo">Arquivo Fonte</label>
-                            <input type="file" id="arquivo" name="arquivo" />
+                            <input type="file" id="arquivo" accept="text/plain" name="arquivo" />
                         </div>
+
+						<div class="col-md-12 form-group">
+							<label for="arquivo">Tags</label>
+							<input name="tags" type="text" id="conta-tags" data-role="tagsinput" />
+						</div>
 
                         <div class="col-md-12">
-                            <button class="btn btn-default submit-button" id="submit">ENVIAR</button>
+                            <input type="submit" class="btn btn-default submit-button" value="ENVIAR" />
                         </div>
-
+						
                     </form>
 
                 </div>
@@ -243,36 +256,67 @@
         </div>
 
         <script th:inline="javascript">
-            /*<![CDATA[*/
+			/*<![CDATA[*/
 
-            $('.panel').hide();
+			$('.panel').hide();
 
-            function alertaCarregarBaseDeDados(val) {
-                alert("Inseridos: " + val);
-                location.reload();
-            }
+			function alertaCarregarBaseDeDados(val) {
+				alert("Inseridos: " + val);
+				location.reload();
+			}
 
-            function alertaEmailTeste(val) {
-                alert(val);
-                location.reload();
-            }
+			function alertaEmailTeste(val) {
+				alert(val);
+				location.reload();
+			}
 
-            function alertaEmailMassa(val) {
-                alert(val);
-                location.reload();
-            }
+			function alertaEmailMassa(val) {
+				alert(val);
+				location.reload();
+			}
 
-            var pagina = /*[[${pagina}]]*/ "estatisticas";
-            $('#' + pagina).removeClass('hidden').show();
+			var pagina = /*[[${pagina}]]*/ "estatisticas";
+			$('#' + pagina).removeClass('hidden').show();
 
-            $('.panel').not(':visible').remove();
+			$('.panel').not(':visible').remove();
 
-            $('form').on('submit', function() {
-                $('.submit-button').attr('disabled', true);
-                $('.submit-button').html('ENVIANDO...');
-            });
+			$('form .submit-button').on('submit', function () {
+				$(this).attr('disabled', true);
+				$(this).val('ENVIANDO...');
+			});
 
-            /*]]>*/
+			var tags = /*[[${tags}]]*/ [];
+
+			if (tags !== null) {
+
+				var contaTags = new Bloodhound({
+					local: tags,
+					datumTokenizer: Bloodhound.tokenizers.obj.whitespace('tag'),
+					queryTokenizer: Bloodhound.tokenizers.whitespace
+				});
+
+				contaTags.initialize();
+
+				$('#conta-tags').tagsinput({
+					typeaheadjs: [{
+							minLength: 1,
+							highlight: true
+						},
+						{
+							minlength: 1,
+							displayKey: 'tag',
+							valueKey: 'tag',
+							name: 'contaTags',
+							source: contaTags.ttAdapter()
+						}],
+					confirmKeys: [13, 32],
+					trimValue: true,
+					maxTags: 4
+				});
+
+			}
+
+			/*]]>*/
         </script>
 
     </body>

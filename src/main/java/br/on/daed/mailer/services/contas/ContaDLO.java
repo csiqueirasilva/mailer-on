@@ -6,11 +6,14 @@
 package br.on.daed.mailer.services.contas;
 
 import br.on.daed.mailer.services.Mailer;
+import br.on.daed.mailer.services.contas.tags.ContaTag;
+import br.on.daed.mailer.services.contas.tags.ContaTagDLO;
 import br.on.daed.mailer.services.controllers.MailerController;
 import br.on.daed.mailer.services.jobs.Job;
 import com.google.common.collect.Iterables;
 import java.time.ZonedDateTime;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 import java.util.Set;
 import java.util.TreeSet;
@@ -29,6 +32,9 @@ import org.springframework.ui.ModelMap;
 @Service
 public class ContaDLO {
 
+	@Autowired
+	private ContaTagDLO contaTagDLO;
+	
     @Autowired
     private ContaDAO contaDAO;
 
@@ -54,8 +60,14 @@ public class ContaDLO {
         map.addAttribute("contasAtivas", ativos);
     }
 
-    public Integer inserirEmails(List<String> emails) {
+    public Integer inserirEmails(List<String> emails, String tags) {
 
+		String[] tagsArray = tags.split(",");
+		
+		final Set<String> purgedTags = new TreeSet(Arrays.asList(tagsArray));
+		
+		final List<ContaTag> persistedTags = contaTagDLO.persistTags(purgedTags);
+		
         final Set<String> purgedEmails = new TreeSet(emails);
 
         try {
@@ -83,6 +95,7 @@ public class ContaDLO {
                     Conta c = new Conta();
                     c.setEnabled(true);
                     c.setEmail(t);
+					c.setTags(persistedTags);
                     ZonedDateTime dt = ZonedDateTime.now();
                     c.setCriadoem(dt);
                     c.setEditadoem(dt);

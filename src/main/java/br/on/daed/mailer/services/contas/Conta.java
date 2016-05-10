@@ -5,16 +5,20 @@
  */
 package br.on.daed.mailer.services.contas;
 
+import br.on.daed.mailer.services.contas.tags.ContaTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
+import java.util.List;
 import javax.persistence.Column;
+import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinTable;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
-import javax.persistence.Table;
 
 /**
  *
@@ -31,6 +35,9 @@ public class Conta implements Serializable {
     @Column(unique = true)
     private String email;
 
+	@OneToMany
+    private List<ContaTag> tags;
+	
     @Column
     private Boolean enabled;
 
@@ -42,6 +49,14 @@ public class Conta implements Serializable {
     @JsonIgnore
     private ZonedDateTime editadoem;
 
+	public List<ContaTag> getTags() {
+		return tags;
+	}
+
+	public void setTags(List<ContaTag> tags) {
+		this.tags = tags;
+	}
+	
     public ZonedDateTime getCriadoem() {
         return criadoem;
     }

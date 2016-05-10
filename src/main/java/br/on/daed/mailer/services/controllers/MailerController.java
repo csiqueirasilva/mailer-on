@@ -4,6 +4,8 @@ import br.on.daed.mailer.services.Mail;
 import br.on.daed.mailer.services.Mailer;
 import br.on.daed.mailer.services.contas.Conta;
 import br.on.daed.mailer.services.contas.ContaDLO;
+import br.on.daed.mailer.services.contas.tags.ContaTag;
+import br.on.daed.mailer.services.contas.tags.ContaTagDLO;
 import br.on.daed.mailer.services.jobs.EmailClick;
 import br.on.daed.mailer.services.jobs.EmailLink;
 import br.on.daed.mailer.services.jobs.Job;
@@ -35,6 +37,9 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 public class MailerController {
 
+	@Autowired
+	private ContaTagDLO contaTagDLO;
+	
     @Autowired
     private Mailer mailer;
 
@@ -142,6 +147,11 @@ public class MailerController {
     @RequestMapping("/carregar-base-dados")
     public String getCarregarBaseDados(ModelMap map) {
         map.addAttribute("pagina", "carregar-base-dados");
+		
+		Iterable<ContaTag> tags = contaTagDLO.findAll();
+		
+		map.addAttribute("tags", tags);
+		
         return "index";
     }
 
@@ -224,7 +234,7 @@ public class MailerController {
 
     @RequestMapping(value = "/load-mail-list", method = RequestMethod.POST)
     public @ResponseBody
-    String loadMailList(@RequestParam("arquivo") final MultipartFile arquivo) throws IOException {
+    String loadMailList(@RequestParam("arquivo") final MultipartFile arquivo, @RequestParam("tags") String tags) throws IOException {
 
         String ret = "null";
 
@@ -233,7 +243,7 @@ public class MailerController {
             arquivoCorpo.deleteOnExit();
             arquivo.transferTo(arquivoCorpo);
             List<String> listaEmail = Files.readAllLines(Paths.get(arquivoCorpo.getAbsolutePath()));
-            ret = contaDLO.inserirEmails(listaEmail).toString();
+            ret = contaDLO.inserirEmails(listaEmail, tags).toString();
         } catch (Exception e) {
             e.printStackTrace();
         }

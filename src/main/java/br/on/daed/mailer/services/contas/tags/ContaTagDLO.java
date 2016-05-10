@@ -22,6 +22,10 @@ public class ContaTagDLO {
     @Autowired
     private ContaTagDAO dao;
 
+	public ContaTag findByTag(String tag) {
+        return dao.findByTag(tag);
+    }
+	
     public Iterable<ContaTag> findAll() {
         return dao.findAll();
     }

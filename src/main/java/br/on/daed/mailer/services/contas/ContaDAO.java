@@ -5,7 +5,7 @@
  */
 package br.on.daed.mailer.services.contas;
 
-import br.on.daed.mailer.services.jobs.Job;
+import br.on.daed.mailer.services.contas.tags.ContaTag;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -32,4 +32,6 @@ public interface ContaDAO extends JpaRepository<Conta, Long> {
     @Query("SELECT c FROM Conta c WHERE c.email LIKE CONCAT('%',:email,'%')")
     Page<Conta> findByEmailLike(@Param("email") String email, Pageable page);
 
+    @Query("SELECT c FROM Conta c WHERE :tag MEMBER OF c.tags")
+    Page<Conta> findByTag(@Param("tag") ContaTag tag, Pageable page);
 }

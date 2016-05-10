@@ -34,111 +34,120 @@ public class ContaDLO {
 
 	@Autowired
 	private ContaTagDLO contaTagDLO;
-	
-    @Autowired
-    private ContaDAO contaDAO;
 
-    public Iterable<Conta> findByEmail(Iterable<String> emails) {
-        return contaDAO.findByEmailIn(emails);
-    }
+	@Autowired
+	private ContaDAO contaDAO;
 
-    public Iterable<Conta> getEnabled() {
-        return contaDAO.findByEnabled(true);
-    }
+	public Iterable<Conta> findByEmail(Iterable<String> emails) {
+		return contaDAO.findByEmailIn(emails);
+	}
 
-    public Iterable<Conta> findAll() {
-        return contaDAO.findAll();
-    }
+	public Iterable<Conta> getEnabled() {
+		return contaDAO.findByEnabled(true);
+	}
 
-    public void indexStats(ModelMap map) {
-        long total = contaDAO.count();
-        long ativos = Iterables.size(contaDAO.findByEnabled(true));
-        long inativos = total - ativos;
+	public Iterable<Conta> findAll() {
+		return contaDAO.findAll();
+	}
 
-        map.addAttribute("totalContas", total);
-        map.addAttribute("contasInativas", inativos);
-        map.addAttribute("contasAtivas", ativos);
-    }
+	public void indexStats(ModelMap map) {
+		long total = contaDAO.count();
+		long ativos = Iterables.size(contaDAO.findByEnabled(true));
+		long inativos = total - ativos;
 
-    public Integer inserirEmails(List<String> emails, String tags) {
+		map.addAttribute("totalContas", total);
+		map.addAttribute("contasInativas", inativos);
+		map.addAttribute("contasAtivas", ativos);
+	}
+
+	public Integer inserirEmails(List<String> emails, String tags) {
 
 		String[] tagsArray = tags.split(",");
-		
+
 		final Set<String> purgedTags = new TreeSet(Arrays.asList(tagsArray));
-		
+
 		final List<ContaTag> persistedTags = contaTagDLO.persistTags(purgedTags);
-		
-        final Set<String> purgedEmails = new TreeSet(emails);
 
-        try {
-            Iterable<Conta> findByEmail = contaDAO.findByEmailIn(emails);
+		final Set<String> purgedEmails = new TreeSet(emails);
 
-            findByEmail.forEach(new Consumer<Conta>() {
+		try {
+			Iterable<Conta> findByEmail = contaDAO.findByEmailIn(emails);
 
-                @Override
-                public void accept(Conta t) {
-                    purgedEmails.remove(t.getEmail());
-                }
+			findByEmail.forEach(new Consumer<Conta>() {
 
-            });
+				@Override
+				public void accept(Conta t) {
+					purgedEmails.remove(t.getEmail());
+				}
 
-        } catch (NullPointerException e) {
-        }
+			});
 
-        final List<Conta> adicionar = new ArrayList();
+		} catch (NullPointerException e) {
+		}
 
-        purgedEmails.forEach(new Consumer<String>() {
+		final List<Conta> adicionar = new ArrayList();
 
-            @Override
-            public void accept(String t) {
-                if (Mailer.validar(t)) {
-                    Conta c = new Conta();
-                    c.setEnabled(true);
-                    c.setEmail(t);
+		purgedEmails.forEach(new Consumer<String>() {
+
+			@Override
+			public void accept(String t) {
+				if (Mailer.validar(t)) {
+					Conta c = new Conta();
+					c.setEnabled(true);
+					c.setEmail(t);
 					c.setTags(persistedTags);
-                    ZonedDateTime dt = ZonedDateTime.now();
-                    c.setCriadoem(dt);
-                    c.setEditadoem(dt);
-                    adicionar.add(c);
-                }
-            }
+					ZonedDateTime dt = ZonedDateTime.now();
+					c.setCriadoem(dt);
+					c.setEditadoem(dt);
+					adicionar.add(c);
+				}
+			}
 
-        });
+		});
 
-        contaDAO.save(adicionar);
+		contaDAO.save(adicionar);
 
-        return adicionar.size();
-    }
+		return adicionar.size();
+	}
 
-    public Conta findByEmail(String email) {
-        return contaDAO.findByEmail(email);
-    }
+	public Conta findByEmail(String email) {
+		return contaDAO.findByEmail(email);
+	}
 
-    public Conta adicionarConta(String email, Boolean contaAtiva) {
-        Conta c = null;
+	public Conta adicionarConta(String email, Boolean contaAtiva) {
+		Conta c = null;
 
-        if (contaDAO.findByEmail(email) == null) {
-            c = new Conta();
-            c.setEnabled(contaAtiva);
-            c.setEmail(email);
-            ZonedDateTime dt = ZonedDateTime.now();
-            c.setCriadoem(dt);
-            c.setEditadoem(dt);
-            contaDAO.save(c);
-        }
+		if (contaDAO.findByEmail(email) == null) {
+			c = new Conta();
+			c.setEnabled(contaAtiva);
+			c.setEmail(email);
+			ZonedDateTime dt = ZonedDateTime.now();
+			c.setCriadoem(dt);
+			c.setEditadoem(dt);
+			contaDAO.save(c);
+		}
 
-        return c;
-    }
+		return c;
+	}
 
-    public Page<Conta> getContaLog(Integer pageNumber, String email) {
-        PageRequest request
-                = new PageRequest(pageNumber - 1, MailerController.PAGE_SIZE, Sort.Direction.ASC, "email");
-        
-        if(email == null) {
-            email = "";
-        }
-        
-        return contaDAO.findByEmailLike(email, request);
+	public Page<Conta> getContaLog(Integer pageNumber, String email) {
+		PageRequest request
+				= new PageRequest(pageNumber - 1, MailerController.PAGE_SIZE, Sort.Direction.ASC, "email");
 
-    }
+		if (email == null) {
+			email = "";
+		}
+
+		return contaDAO.findByEmailLike(email, request);
+	}
+
+	public Page<Conta> getContaLogByTag(Integer pageNumber, String tagName) {
+		ContaTag tag = contaTagDLO.findByTag(tagName);
+
+		PageRequest request
+				= new PageRequest(pageNumber - 1, MailerController.PAGE_SIZE, Sort.Direction.ASC, "email");
+
+		return contaDAO.findByTag(tag, request);
+	}
+
 }

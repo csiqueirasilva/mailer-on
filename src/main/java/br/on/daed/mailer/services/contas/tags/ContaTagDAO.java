@@ -16,4 +16,5 @@ import org.springframework.stereotype.Repository;
 @Repository
 public interface ContaTagDAO extends JpaRepository<ContaTag, Long> {
     public List<ContaTag> findByTagIn(List<String> tags);
+	public ContaTag findByTag(String tag);
 }

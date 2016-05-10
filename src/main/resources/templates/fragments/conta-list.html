@@ -13,7 +13,8 @@
         <tr>
             <th>Email</th>
             <th>Adicionado em</th>
-            <th>Editado em</th>
+            <th style="display: none;">Editado em</th>
+			<th>Tags</th>
             <th>Ativado</th>
         </tr>
     </thead>
@@ -21,7 +22,8 @@
         <tr th:class="${conta.enabled}? 'active' : 'danger'" th:each="conta : ${page.content}">
             <td th:text="${conta.email}">Onions</td>
             <td th:text="${#temporals.format(conta.criadoem, 'dd/MMM/yyyy HH:mm')}">2.41</td>
-            <td th:text="${#temporals.format(conta.editadoem, 'dd/MMM/yyyy HH:mm')}">2.41</td>
+            <td style="display: none;" th:text="${#temporals.format(conta.editadoem, 'dd/MMM/yyyy HH:mm')}">2.41</td>
+			<td th:text="${#strings.listJoin(conta.tags, ', ')}">2.41</td>
             <td th:text="${conta.enabled}? 'sim' : 'não'">sim</td>
         </tr>
     </tbody>

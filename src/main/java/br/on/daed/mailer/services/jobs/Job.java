@@ -7,6 +7,7 @@ package br.on.daed.mailer.services.jobs;
 
 import br.on.daed.mailer.services.Mail;
 import br.on.daed.mailer.services.contas.Conta;
+import br.on.daed.mailer.services.contas.tags.ContaTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import java.io.Serializable;
 import java.time.ZonedDateTime;
@@ -21,6 +22,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Lob;
+import javax.persistence.ManyToMany;
 import javax.persistence.MapKey;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
@@ -37,67 +39,78 @@ import org.hibernate.annotations.Type;
 @SequenceGenerator(name = "seq_job", allocationSize = 1, initialValue = 1)
 public class Job implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_job")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_job")
+	private Long id;
 
-    @OneToMany(mappedBy = "job", cascade = CascadeType.ALL)
-    private List<EmailLink> links;
+	@OneToMany(mappedBy = "job", cascade = CascadeType.ALL)
+	private List<EmailLink> links;
 
-    @Column
-    @JsonIgnore
-    private ZonedDateTime criadoem;
+	@Column
+	@JsonIgnore
+	private ZonedDateTime criadoem;
 
-    @OneToOne(cascade = CascadeType.ALL)
-    private Mail mail;
+	@ManyToMany
+	private List<ContaTag> tags;
 
-    @Column
-    private boolean terminated;
+	@OneToOne(cascade = CascadeType.ALL)
+	private Mail mail;
 
-    public Job() {
-        this.links = new ArrayList();
-        this.criadoem = ZonedDateTime.now();
-        terminated = false;
-    }
+	@Column
+	private boolean terminated;
 
-    public boolean isTerminated() {
-        return terminated;
-    }
+	public List<ContaTag> getTags() {
+		return tags;
+	}
 
-    public void setTerminated(boolean terminated) {
-        this.terminated = terminated;
-    }
+	public void setTags(List<ContaTag> tags) {
+		this.tags = tags;
+	}
 
-    public Mail getMail() {
-        return mail;
-    }
+	public Job() {
+		this.links = new ArrayList();
+		this.criadoem = ZonedDateTime.now();
+		terminated = false;
+	}
 
-    public void setMail(Mail mail) {
-        this.mail = mail;
-    }
+	public boolean isTerminated() {
+		return terminated;
+	}
 
-    public Long getId() {
-        return id;
-    }
+	public void setTerminated(boolean terminated) {
+		this.terminated = terminated;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public Mail getMail() {
+		return mail;
+	}
 
-    public ZonedDateTime getCriadoem() {
-        return criadoem;
-    }
+	public void setMail(Mail mail) {
+		this.mail = mail;
+	}
 
-    public void setCriadoem(ZonedDateTime criadoem) {
-        this.criadoem = criadoem;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public List<EmailLink> getLinks() {
-        return links;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public void setLinks(List<EmailLink> links) {
-        this.links = links;
-    }
+	public ZonedDateTime getCriadoem() {
+		return criadoem;
+	}
+
+	public void setCriadoem(ZonedDateTime criadoem) {
+		this.criadoem = criadoem;
+	}
+
+	public List<EmailLink> getLinks() {
+		return links;
+	}
+
+	public void setLinks(List<EmailLink> links) {
+		this.links = links;
+	}
 
 }

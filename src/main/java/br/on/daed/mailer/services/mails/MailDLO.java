@@ -1,13 +1,16 @@
-package br.on.daed.mailer.services;
+package br.on.daed.mailer.services.mails;
 
 import br.on.daed.mailer.services.contas.Conta;
 import br.on.daed.mailer.services.contas.ContaDLO;
+import br.on.daed.mailer.services.contas.tags.ContaTag;
+import br.on.daed.mailer.services.contas.tags.ContaTagDLO;
 import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.nio.charset.Charset;
 import java.nio.file.Files;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
@@ -38,11 +41,14 @@ import org.springframework.web.multipart.MultipartFile;
  * @author caio
  */
 @Service
-public class Mailer {
+public class MailDLO {
 
 	@Autowired
 	private ContaDLO contaDLO;
 
+	@Autowired
+	private ContaTagDLO contaTagDLO;
+	
 	final private static String EMAIL_PATTERN
 			= "^[_A-Za-z0-9-\\+]+(\\.[_A-Za-z0-9-]+)*@"
 			+ "[A-Za-z0-9-]+(\\.[A-Za-z0-9]+)*(\\.[A-Za-z]{2,})$";
@@ -73,16 +79,18 @@ public class Mailer {
 		return m;
 	}
 
-	public Mail criarMail(String user, String password, String corpo, String assunto) throws FileNotFoundException, IOException {
-
+	public Mail criarMailWithTags(String user, String password, String corpo, String assunto, String tags) throws FileNotFoundException, IOException {
+		
+		List<ContaTag> contaTags = contaTagDLO.findByString(tags);
+		
 		final Mail m = new Mail();
 
 		m.setUser(user);
 		m.setPassword(password);
 		m.setBody(corpo);
 		m.setSubject(assunto);
-
-		contaDLO.getEnabled().forEach(new Consumer<Conta>() {
+		
+		contaDLO.getEnabledWithTags(contaTags).forEach(new Consumer<Conta>() {
 			@Override
 			public void accept(Conta conta) {
 				m.getTo().add(conta);

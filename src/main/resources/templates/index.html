@@ -49,7 +49,7 @@
 			.bootstrap-tagsinput {
 				width: 100%;
 			}
-			
+
         </style>
 
     </head>
@@ -92,8 +92,13 @@
                             <input type="text" class="form-control" id="assunto" name="assunto" placeholder="Assunto" />
                         </div>
 
+						<div class="col-md-12 form-group">
+							<label for="arquivo">Tags</label>
+							<input name="tags" type="text" class="conta-tags" data-role="tagsinput" />
+						</div>
+
                         <div class="col-md-12">
-                            <button type="submit" class="btn btn-default submit-button">ENVIAR</button>
+                            <input type="submit" class="btn btn-default submit-button" value="ENVIAR"/>
                         </div>
 
                     </form>
@@ -126,9 +131,9 @@
                         </div>
 
                         <div class="col-md-12">
-                            <button type="submit" class="btn btn-default submit-button">ENVIAR</button>
+							<input type="submit" class="btn btn-default submit-button" value="ENVIAR"/>
                         </div>
-						
+
                     </form>
 
                 </div>
@@ -149,13 +154,13 @@
 
 						<div class="col-md-12 form-group">
 							<label for="arquivo">Tags</label>
-							<input name="tags" type="text" id="conta-tags" data-role="tagsinput" />
+							<input name="tags" type="text" class="conta-tags" data-role="tagsinput" />
 						</div>
 
                         <div class="col-md-12">
                             <input type="submit" class="btn btn-default submit-button" value="ENVIAR" />
                         </div>
-						
+
                     </form>
 
                 </div>
@@ -267,21 +272,29 @@
 
 			function alertaEmailTeste(val) {
 				var msg;
-				
-				if(val === "true") {
+
+				if (val === "true") {
 					msg = "Email enviado!";
 				} else if (val === "false") {
 					msg = "Erro ao enviar email!";
 				} else {
 					msg = "Email para envio não cadastrado!";
 				}
-				
+
 				alert(msg);
 				location.reload();
 			}
 
 			function alertaEmailMassa(val) {
-				alert(val);
+				var msg;
+				
+				if(val === "true") {
+					msg = "Job criado!";
+				} else {
+					msg = "Falha ao criar o Job!";
+				}
+				
+				alert(msg);
 				location.reload();
 			}
 
@@ -290,9 +303,10 @@
 
 			$('.panel').not(':visible').remove();
 
-			$('form .submit-button').on('submit', function () {
+			$('form .submit-button').on('click', function () {
 				$(this).attr('disabled', true);
 				$(this).val('ENVIANDO...');
+				$(this).parents('form').submit();
 			});
 
 			var tags = /*[[${tags}]]*/ [];
@@ -307,7 +321,7 @@
 
 				contaTags.initialize();
 
-				$('#conta-tags').tagsinput({
+				$('.conta-tags').tagsinput({
 					typeaheadjs: [{
 							minLength: 1,
 							highlight: true

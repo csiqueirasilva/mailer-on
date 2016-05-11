@@ -5,7 +5,7 @@
  */
 package br.on.daed.mailer.services.jobs;
 
-import br.on.daed.mailer.services.Mail;
+import br.on.daed.mailer.services.mails.Mail;
 import br.on.daed.mailer.services.contas.Conta;
 import br.on.daed.mailer.services.contas.tags.ContaTag;
 import com.fasterxml.jackson.annotation.JsonIgnore;

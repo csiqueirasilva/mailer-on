@@ -3,7 +3,7 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package br.on.daed.mailer.services;
+package br.on.daed.mailer.services.mails;
 
 import br.on.daed.mailer.services.contas.Conta;
 import java.io.Serializable;
@@ -36,7 +36,7 @@ public class Mail implements Serializable {
 	private Long id;
 
 	@ManyToMany
-	List<Conta> to;
+	private List<Conta> to;
 
 	@Column
 	private String subject;

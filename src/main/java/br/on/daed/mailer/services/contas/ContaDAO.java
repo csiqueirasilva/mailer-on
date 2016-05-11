@@ -6,6 +6,7 @@
 package br.on.daed.mailer.services.contas;
 
 import br.on.daed.mailer.services.contas.tags.ContaTag;
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -34,4 +35,7 @@ public interface ContaDAO extends JpaRepository<Conta, Long> {
 
     @Query("SELECT c FROM Conta c WHERE :tag MEMBER OF c.tags")
     Page<Conta> findByTag(@Param("tag") ContaTag tag, Pageable page);
+	
+	@Query("SELECT c FROM Conta c WHERE :tag IN c.tags and c.enabled = TRUE")
+    List<Conta> findEnabledByTags(@Param("tag") List<ContaTag> tag);
 }

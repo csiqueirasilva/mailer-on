@@ -5,7 +5,7 @@
  */
 package br.on.daed.mailer.services.contas;
 
-import br.on.daed.mailer.services.Mailer;
+import br.on.daed.mailer.services.mails.MailDLO;
 import br.on.daed.mailer.services.contas.tags.ContaTag;
 import br.on.daed.mailer.services.contas.tags.ContaTagDLO;
 import br.on.daed.mailer.services.controllers.MailerController;
@@ -91,7 +91,7 @@ public class ContaDLO {
 
 			@Override
 			public void accept(String t) {
-				if (Mailer.validar(t)) {
+				if (MailDLO.validar(t)) {
 					Conta c = new Conta();
 					c.setEnabled(true);
 					c.setEmail(t);
@@ -148,6 +148,10 @@ public class ContaDLO {
 				= new PageRequest(pageNumber - 1, MailerController.PAGE_SIZE, Sort.Direction.ASC, "email");
 
 		return contaDAO.findByTag(tag, request);
+	}
+
+	public List<Conta> getEnabledWithTags(List<ContaTag> contaTags) {
+		return contaDAO.findEnabledByTags(contaTags);
 	}
 	
 }

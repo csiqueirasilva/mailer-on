@@ -5,8 +5,8 @@
  */
 package br.on.daed.mailer.services.jobs;
 
-import br.on.daed.mailer.services.Mail;
-import br.on.daed.mailer.services.Mailer;
+import br.on.daed.mailer.services.mails.Mail;
+import br.on.daed.mailer.services.mails.MailDLO;
 import br.on.daed.mailer.services.contas.*;
 import br.on.daed.mailer.services.controllers.MailerController;
 import com.google.common.reflect.TypeToken;
@@ -156,7 +156,7 @@ public class JobDLO {
 			m.setBody(replaced);
 		}
 
-		Mailer.sendMail(m);
+		MailDLO.sendMail(m);
 
 		m.setBody(baseBody);
 
@@ -282,7 +282,7 @@ public class JobDLO {
 				m.setBody(replaced);
 			}
 
-			Mailer.sendMail(m);
+			MailDLO.sendMail(m);
 		}
 
 		m.setBody(baseBody);

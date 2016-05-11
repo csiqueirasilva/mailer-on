@@ -1,7 +1,7 @@
 package br.on.daed.mailer.services.controllers;
 
-import br.on.daed.mailer.services.Mail;
-import br.on.daed.mailer.services.Mailer;
+import br.on.daed.mailer.services.mails.Mail;
+import br.on.daed.mailer.services.mails.MailDLO;
 import br.on.daed.mailer.services.contas.Conta;
 import br.on.daed.mailer.services.contas.ContaDLO;
 import br.on.daed.mailer.services.contas.tags.ContaTag;
@@ -39,7 +39,7 @@ public class MailerController {
 	private ContaTagDLO contaTagDLO;
 
 	@Autowired
-	private Mailer mailer;
+	private MailDLO mailer;
 
 	@Autowired
 	private ContaDLO contaDLO;
@@ -171,6 +171,11 @@ public class MailerController {
 	@RequestMapping("/email-em-massa")
 	public String getEmailMassa(ModelMap map) {
 		map.addAttribute("pagina", "email-em-massa");
+		
+		Iterable<ContaTag> tags = contaTagDLO.findAll();
+
+		map.addAttribute("tags", tags);
+		
 		return "index";
 	}
 
@@ -222,18 +227,24 @@ public class MailerController {
 	public @ResponseBody
 	String sendMailList(
 			@RequestParam("arquivo") MultipartFile arquivo,
-			@RequestParam("assunto") String assunto) throws IOException {
+			@RequestParam("assunto") String assunto,
+			@RequestParam("tags") String tags) throws IOException {
 
 		String ret = "null";
 
 		try {
 			File arquivoCorpo = new File(System.getProperty("java.io.tmpdir") + File.separator + "corpo" + System.currentTimeMillis());
 			arquivo.transferTo(arquivoCorpo);
-			Mail m = mailer.criarMail(DEFAULT_REMETENTE, DEFAULT_SENHA, arquivoCorpo.getAbsolutePath(), assunto);
+			Mail m = mailer.criarMailWithTags(DEFAULT_REMETENTE, DEFAULT_SENHA, arquivoCorpo.getAbsolutePath(), assunto, tags);
 			
+			if(m != null) {
+				jobDLO.createJob(m);
+				ret = "true";
+			}
 			
 		} catch (Exception e) {
 			e.printStackTrace();
+			ret = "false";
 		}
 
 		return iframeReturn(ret, "alertaEmailMassa");

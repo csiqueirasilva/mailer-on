@@ -30,6 +30,21 @@ public class ContaTagDLO {
         return dao.findAll();
     }
 
+	public List<ContaTag> findByString(String source) {
+		List<ContaTag> tags = new ArrayList();
+
+		String[] split = source.split(",");
+
+		for (String tagStr : split) {
+			ContaTag findByTag = findByTag(tagStr);
+			if(findByTag != null) {
+				tags.add(findByTag);
+			}
+		}
+		
+		return tags;
+	}
+	
 	public List<ContaTag> persistTags(Collection<String> tags) {
 
 		List<String> transformedTags = new ArrayList();

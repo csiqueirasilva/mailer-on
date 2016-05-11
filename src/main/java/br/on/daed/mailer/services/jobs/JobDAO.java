@@ -5,6 +5,7 @@
  */
 package br.on.daed.mailer.services.jobs;
 
+import java.util.List;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -21,5 +22,8 @@ public interface JobDAO extends JpaRepository<Job, Long> {
 
     @Query("SELECT l FROM Job l WHERE l.mail.subject LIKE CONCAT('%',:assunto,'%')")
     Page<Job> findByAssunto(@Param("assunto") String assunto, Pageable page);
+
+	@Query("SELECT j from Job j WHERE j.terminated = FALSE ORDER BY j.criadoem ASC")
+	List<Job> findNonTerminated();
 
 }

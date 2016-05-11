@@ -202,16 +202,14 @@ public class MailerController {
 
 			byte[] encoded = Files.readAllBytes(Paths.get(arquivoCorpo.getAbsolutePath()));
 			String HTML = new String(encoded, "UTF-8");
-
+			
 			Mail m = mailer.criarMail(destino, DEFAULT_REMETENTE, DEFAULT_SENHA, HTML, assunto);
 
-			Job createdJob = jobDLO.createJob(m, true);
-
-			jobDLO.replaceLinksAndSend(m, createdJob);
-
-			jobDLO.terminateJob(createdJob);
-
-			ret = "true";
+			if(m != null) {
+				jobDLO.createJob(m);
+				ret = "true";
+			}
+			
 		} catch (Exception e) {
 			ret = "false";
 			e.printStackTrace();
@@ -232,6 +230,8 @@ public class MailerController {
 			File arquivoCorpo = new File(System.getProperty("java.io.tmpdir") + File.separator + "corpo" + System.currentTimeMillis());
 			arquivo.transferTo(arquivoCorpo);
 			Mail m = mailer.criarMail(DEFAULT_REMETENTE, DEFAULT_SENHA, arquivoCorpo.getAbsolutePath(), assunto);
+			
+			
 		} catch (Exception e) {
 			e.printStackTrace();
 		}

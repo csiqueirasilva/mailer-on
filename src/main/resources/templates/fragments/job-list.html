@@ -14,6 +14,7 @@
         <tr>
             <th>Assunto</th>
             <th>Total de Envios</th>
+			<th>Falhas</th>
             <th>Criado em</th>
 			<th>Tags</th>
             <th>Terminado</th>
@@ -23,6 +24,7 @@
         <tr th:each="job : ${page.content}">
             <td th:text="${job.mail.subject}">Onions</td>
             <td th:text="${job.mail.countEnviados} + ' de ' + ${job.mail.countTotal}">2.41</td>
+			<td th:text="${job.mail.countFalhados.size()}">2.41</td>
             <td th:text="${#temporals.format(job.criadoem, 'dd/MMM/yyyy HH:mm')}">2.41</td>
 			<td th:text="${#strings.listJoin(job.tags, ', ')}">2.41</td>
             <td th:text="${job.terminated}? 'Sim' : 'Não'">yes</td>

@@ -266,7 +266,17 @@
 			}
 
 			function alertaEmailTeste(val) {
-				alert(val);
+				var msg;
+				
+				if(val === "true") {
+					msg = "Email enviado!";
+				} else if (val === "false") {
+					msg = "Erro ao enviar email!";
+				} else {
+					msg = "Email para envio não cadastrado!";
+				}
+				
+				alert(msg);
 				location.reload();
 			}
 

@@ -5,15 +5,20 @@
  */
 package br.on.daed.mailer.services;
 
+import br.on.daed.mailer.services.contas.Conta;
 import java.io.Serializable;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import javax.persistence.Column;
 import javax.persistence.ElementCollection;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.ManyToMany;
+import javax.persistence.OneToMany;
 import javax.persistence.SequenceGenerator;
 
 /**
@@ -24,126 +29,137 @@ import javax.persistence.SequenceGenerator;
 @SequenceGenerator(name = "seq_mail", allocationSize = 1, initialValue = 1)
 public class Mail implements Serializable {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_mail")
-    private Long id;
+	@Id
+	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_mail")
+	private Long id;
 
-    @ElementCollection
-    @Column(name = "mailTo")
-    List<String> to;
+	@ManyToMany
+	List<Conta> to;
 
-    @Column
-    private String subject;
+	@Column
+	private String subject;
 
-    @Column(columnDefinition = "TEXT")
-    private String body;
+	@Column(columnDefinition = "TEXT")
+	private String body;
 
-    @Column(name = "mailfrom")
-    private String from;
+	@Column(name = "mailfrom")
+	private String from;
 
-    @Column
-    private String password;
+	@Column
+	private String password;
 
-    @Column(name = "mailuser")
-    private String user;
+	@Column(name = "mailuser")
+	private String user;
 
-    @Column
-    private Integer countEnviados;
+	@Column
+	private Integer countEnviados;
 
-    @Column
-    private Integer countTotal;
+	@Column
+	private Integer countTotal;
 
-    public Mail() {
-        to = new ArrayList();
-        countEnviados = countTotal = 0;
-    }
+	@ElementCollection
+	private Map<Conta, String> countFalhados;
 
-    public Long getId() {
-        return id;
-    }
+	public Mail() {
+		countFalhados = new HashMap();
+		to = new ArrayList();
+		countEnviados = countTotal = 0;
+	}
 
-    public void setId(Long id) {
-        this.id = id;
-    }
+	public Map<Conta, String> getCountFalhados() {
+		return countFalhados;
+	}
 
-    public Integer getCountEnviados() {
-        return countEnviados;
-    }
+	public void setCountFalhados(Map<Conta, String> countFalhados) {
+		this.countFalhados = countFalhados;
+	}
 
-    public void setCountEnviados(Integer countEnviados) {
-        this.countEnviados = countEnviados;
-    }
+	public Long getId() {
+		return id;
+	}
 
-    public Integer getCountTotal() {
-        return countTotal;
-    }
+	public void setId(Long id) {
+		this.id = id;
+	}
 
-    public void setCountTotal(Integer countTotal) {
-        this.countTotal = countTotal;
-    }
+	public Integer getCountEnviados() {
+		return countEnviados;
+	}
 
-    public void incrementarEnviado() {
-        countEnviados++;
-    }
+	public void setCountEnviados(Integer countEnviados) {
+		this.countEnviados = countEnviados;
+	}
 
-    public Integer getTotal() {
-        return this.countTotal;
-    }
+	public Integer getCountTotal() {
+		return countTotal;
+	}
 
-    public Integer getEnviados() {
-        return this.countEnviados;
-    }
+	public void setCountTotal(Integer countTotal) {
+		this.countTotal = countTotal;
+	}
 
-    public void setCountTotal() {
-        this.countTotal = this.to.size();
-    }
+	public void incrementarEnviado() {
+		countEnviados++;
+	}
 
-    public List<String> getTo() {
-        return to;
-    }
+	public Integer getTotal() {
+		return this.countTotal;
+	}
 
-    public void setTo(List<String> to) {
-        this.to = to;
-    }
+	public Integer getEnviados() {
+		return this.countEnviados;
+	}
 
-    public String getSubject() {
-        return subject;
-    }
+	public void setCountTotal() {
+		this.countTotal = this.to.size();
+	}
 
-    public void setSubject(String subject) {
-        this.subject = subject;
-    }
+	public List<Conta> getTo() {
+		return to;
+	}
 
-    public String getBody() {
-        return body;
-    }
+	public void setTo(List<Conta> to) {
+		this.to = to;
+	}
 
-    public void setBody(String body) {
-        this.body = body;
-    }
+	public String getSubject() {
+		return subject;
+	}
 
-    public String getFrom() {
-        return from;
-    }
+	public void setSubject(String subject) {
+		this.subject = subject;
+	}
 
-    public void setFrom(String from) {
-        this.from = from;
-    }
+	public String getBody() {
+		return body;
+	}
 
-    public String getPassword() {
-        return password;
-    }
+	public void setBody(String body) {
+		this.body = body;
+	}
 
-    public void setPassword(String password) {
-        this.password = password;
-    }
+	public String getFrom() {
+		return from;
+	}
 
-    public String getUser() {
-        return user;
-    }
+	public void setFrom(String from) {
+		this.from = from;
+	}
 
-    public void setUser(String user) {
-        this.user = user;
-    }
+	public String getPassword() {
+		return password;
+	}
+
+	public void setPassword(String password) {
+		this.password = password;
+	}
+
+	public String getUser() {
+		return user;
+	}
+
+	public void setUser(String user) {
+		this.user = user;
+	}
 
 }

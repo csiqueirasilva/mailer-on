@@ -151,7 +151,19 @@ public class ContaDLO {
 	}
 
 	public List<Conta> getEnabledWithTags(List<ContaTag> contaTags) {
-		return contaDAO.findEnabledByTags(contaTags);
+		return contaDAO.findByEnabledTrueAndTagsIn(contaTags);
+	}
+
+	public Conta findById(Long contaId) {
+		return contaDAO.findOne(contaId);
+	}
+
+	public void setDisabled(long id) {
+		Conta findOne = contaDAO.findOne(id);
+		if(findOne != null) {
+			findOne.setEnabled(false);
+			contaDAO.saveAndFlush(findOne);
+		}
 	}
 	
 }

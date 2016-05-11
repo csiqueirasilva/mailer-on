@@ -36,6 +36,5 @@ public interface ContaDAO extends JpaRepository<Conta, Long> {
     @Query("SELECT c FROM Conta c WHERE :tag MEMBER OF c.tags")
     Page<Conta> findByTag(@Param("tag") ContaTag tag, Pageable page);
 	
-	@Query("SELECT c FROM Conta c WHERE :tag IN c.tags and c.enabled = TRUE")
-    List<Conta> findEnabledByTags(@Param("tag") List<ContaTag> tag);
+    List<Conta> findByEnabledTrueAndTagsIn(List<ContaTag> tag);
 }

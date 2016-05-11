@@ -60,10 +60,12 @@ public class JobDLO {
 	@Autowired
 	private ContaDLO contaDLO;
 
-	@Value("${servidor.endereco}")
-	private String ENDERECO_SERVIDOR;
+//	@Value("${servidor.endereco}")
+	private String ENDERECO_SERVIDOR = "www.on.br";
+	
+	private final String UNSUB_LINK_MARK = "%%%UNSUB_LINK%%%";
 
-	static final Pattern hrefPattern = Pattern.compile(" href=\"(.*?)\"");
+	static final Pattern HREF_PATTERN = Pattern.compile(" href=\"(.*?)\"");
 
 	/* src: http://stackoverflow.com/questions/2221413/how-to-encode-a-mapstring-string-as-base64-string */
 	public static String serialize(Object object) throws IOException {
@@ -123,10 +125,10 @@ public class JobDLO {
 		Map<String, String> deserialize = JobDLO.deserialize(data, new TypeToken<Map<String, String>>() {
 		}.getType());
 		Long id = Long.parseLong(deserialize.get("linkId"));
-		String email = deserialize.get("userEmail");
+		Long contaId = Long.parseLong(deserialize.get("userId"));
 
 		EmailLink link = emailLinkDAO.findOne(id);
-		Conta conta = contaDLO.findByEmail(email);
+		Conta conta = contaDLO.findById(contaId);
 
 		criarEmailClick(link, conta);
 
@@ -173,7 +175,16 @@ public class JobDLO {
 
 		j.setMail(m);
 
-		Matcher matcher = hrefPattern.matcher(m.getBody());
+		String mailBody = m.getBody();
+		
+		if(mailBody.contains("</body>")) {
+			String unsubLinkTag = "<h6 style=\"text-align: center; width: 100%; margin-top: 5%;\">Se você não quiser mais receber esses emails, clique <a href='" + UNSUB_LINK_MARK + "'>aqui</a>.</h6></body>";
+			mailBody = mailBody.replace("</body>", unsubLinkTag);
+		}
+		
+		m.setBody(mailBody);
+		
+		Matcher matcher = HREF_PATTERN.matcher(mailBody);
 
 		final List<String> urls = new ArrayList();
 
@@ -245,11 +256,7 @@ public class JobDLO {
 	}
 
 	public Job getCurrentJob() {
-		List<Job> list = dao.findNonTerminated();
-		Job j = null;
-		if (list.size() > 0) {
-			j = list.get(0);
-		}
+		Job j = dao.findTop1ByTerminatedFalseOrderByCriadoemAsc();
 		return j;
 	}
 
@@ -264,15 +271,17 @@ public class JobDLO {
 
 		String baseBody = m.getBody();
 
-		for (int i = 0; i < LIMIT_WORK; i++) {
+		for (int i = 0; i < LIMIT_WORK && m.getCountEnviados() < m.getCountTotal(); i++) {
 
 			int idxMail = m.getCountEnviados();
-
+			
+			String contaId = m.getTo().get(idxMail).getId().toString();
+			
 			for (EmailLink link : job.getLinks()) {
 				Map<String, String> map = new HashMap();
 
 				map.put("linkId", link.getId().toString());
-				map.put("userId", m.getTo().get(idxMail).getId().toString());
+				map.put("userId", contaId);
 
 				String encoded = serialize(map);
 
@@ -282,6 +291,13 @@ public class JobDLO {
 				m.setBody(replaced);
 			}
 
+			if(m.getBody().contains(UNSUB_LINK_MARK)) {
+				String replaced = m.getBody();
+				String unsubUrl = "http://" + ENDERECO_SERVIDOR + "/" + MailerController.REQUEST_UNSUB_URL + "?id=" + contaId;
+				replaced = replaced.replace(UNSUB_LINK_MARK, unsubUrl);
+				m.setBody(replaced);
+			}
+			
 			MailDLO.sendMail(m);
 		}
 

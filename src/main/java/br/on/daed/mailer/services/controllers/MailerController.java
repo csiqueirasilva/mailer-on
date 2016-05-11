@@ -12,9 +12,12 @@ import br.on.daed.mailer.services.jobs.Job;
 import br.on.daed.mailer.services.jobs.JobDLO;
 import java.io.File;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
@@ -54,6 +57,8 @@ public class MailerController {
 	final private String DEFAULT_SENHA = "";
 
 	final public static String REQUEST_MAPPING_URL = "url";
+
+	final public static String REQUEST_UNSUB_URL = "unsub";
 
 	final public static int PAGE_SIZE = 15;
 
@@ -108,15 +113,15 @@ public class MailerController {
 
 	@RequestMapping(value = "/conta-list/{pageNumber}", method = RequestMethod.GET)
 	public String getContaList(@PathVariable Integer pageNumber, @RequestParam(required = false) String email, @RequestParam(required = false) String tag, ModelMap map) {
-		
+
 		Page<Conta> page;
-		
+
 		if (tag != null) {
 			page = contaDLO.getContaLogByTag(pageNumber, tag);
 		} else {
 			page = contaDLO.getContaLog(pageNumber, email);
 		}
-		
+
 		setPagination(map, "Emails cadastrados", "conta-list", page);
 
 		return "index";
@@ -132,6 +137,12 @@ public class MailerController {
 		Page<Job> page = jobDLO.getJobLog(pageNumber, assunto);
 		setPagination(map, "Jobs", "job-list", page);
 		return "index";
+	}
+
+	@RequestMapping(value = "/" + REQUEST_UNSUB_URL, method = RequestMethod.GET)
+	public String unsub(@RequestParam("id") String data) throws IOException {
+		contaDLO.setDisabled(Long.parseLong(data));
+		return "unsub";
 	}
 
 	@RequestMapping(value = "/" + REQUEST_MAPPING_URL, method = RequestMethod.GET)
@@ -171,11 +182,11 @@ public class MailerController {
 	@RequestMapping("/email-em-massa")
 	public String getEmailMassa(ModelMap map) {
 		map.addAttribute("pagina", "email-em-massa");
-		
+
 		Iterable<ContaTag> tags = contaTagDLO.findAll();
 
 		map.addAttribute("tags", tags);
-		
+
 		return "index";
 	}
 
@@ -191,6 +202,14 @@ public class MailerController {
 		return true;
 	}
 
+	private String fromFileToString(MultipartFile arquivo) throws UnsupportedEncodingException, IOException {
+		File arquivoCorpo = new File(System.getProperty("java.io.tmpdir") + File.separator + "corpo" + System.currentTimeMillis());
+		arquivo.transferTo(arquivoCorpo);
+		byte[] encoded = Files.readAllBytes(Paths.get(arquivoCorpo.getAbsolutePath()));
+		String HTML = new String(encoded, "UTF-8");
+		return HTML;
+	}
+
 	@RequestMapping(value = "/send-debug-mail-list", method = RequestMethod.POST)
 	public @ResponseBody
 	String sendTestMail(
@@ -201,20 +220,14 @@ public class MailerController {
 		String ret = "null";
 
 		try {
-
-			File arquivoCorpo = new File(System.getProperty("java.io.tmpdir") + File.separator + "corpo" + System.currentTimeMillis());
-			arquivo.transferTo(arquivoCorpo);
-
-			byte[] encoded = Files.readAllBytes(Paths.get(arquivoCorpo.getAbsolutePath()));
-			String HTML = new String(encoded, "UTF-8");
-			
+			String HTML = fromFileToString(arquivo);
 			Mail m = mailer.criarMail(destino, DEFAULT_REMETENTE, DEFAULT_SENHA, HTML, assunto);
 
-			if(m != null) {
+			if (m != null) {
 				jobDLO.createJob(m);
 				ret = "true";
 			}
-			
+
 		} catch (Exception e) {
 			ret = "false";
 			e.printStackTrace();
@@ -233,15 +246,15 @@ public class MailerController {
 		String ret = "null";
 
 		try {
-			File arquivoCorpo = new File(System.getProperty("java.io.tmpdir") + File.separator + "corpo" + System.currentTimeMillis());
-			arquivo.transferTo(arquivoCorpo);
-			Mail m = mailer.criarMailWithTags(DEFAULT_REMETENTE, DEFAULT_SENHA, arquivoCorpo.getAbsolutePath(), assunto, tags);
+			String HTML = fromFileToString(arquivo);
 			
-			if(m != null) {
+			Mail m = mailer.criarMailWithTags(DEFAULT_REMETENTE, DEFAULT_SENHA, HTML, assunto, tags);
+
+			if (m != null) {
 				jobDLO.createJob(m);
 				ret = "true";
 			}
-			
+
 		} catch (Exception e) {
 			e.printStackTrace();
 			ret = "false";

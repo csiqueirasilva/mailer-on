@@ -4,19 +4,12 @@ import br.on.daed.mailer.services.contas.Conta;
 import br.on.daed.mailer.services.contas.ContaDLO;
 import br.on.daed.mailer.services.contas.tags.ContaTag;
 import br.on.daed.mailer.services.contas.tags.ContaTagDLO;
-import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
-import java.nio.file.Paths;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Properties;
 import java.util.function.Consumer;
-import java.util.logging.Level;
-import java.util.logging.Logger;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 import javax.mail.Message;
@@ -34,7 +27,6 @@ import javax.mail.internet.MimeMultipart;
 import org.jsoup.Jsoup;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 /**
  *
@@ -165,14 +157,4 @@ public class MailDLO {
 		m.setCountEnviados(indiceEnvio);
 	}
 
-	public static void main(String args[]) throws Exception {
-		String arquivoTo = "";
-		String assunto = "Aplicativo criado pelo Observatório Nacional divulga a Previsão de Marés";
-		String corpoEmail = "astro-mares-lancamento-09-09-2015.html";
-		String user = "nao-responder@on.br";
-		String password = "";
-
-		//sendMailFromFile(user, password, arquivoTo, assunto, user, corpoEmail);
-		//criarMail(new File(arquivoTo), user, password, user, assunto);
-	}
 }

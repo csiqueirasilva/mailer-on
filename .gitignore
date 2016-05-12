@@ -6,5 +6,5 @@ target
 nb-configuration.xml
 *.txt~
 *.html~
-src/main/resources/application.properties
-src/main/resources/mailer.properties
+application.properties
+mailer.properties

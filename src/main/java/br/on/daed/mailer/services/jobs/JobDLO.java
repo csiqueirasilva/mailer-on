@@ -60,8 +60,8 @@ public class JobDLO {
 	@Autowired
 	private ContaDLO contaDLO;
 
-//	@Value("${servidor.endereco}")
-	private String ENDERECO_SERVIDOR = "www.on.br";
+	@Value("${servidor.endereco}")
+	private String ENDERECO_SERVIDOR;
 	
 	private final String UNSUB_LINK_MARK = "%%%UNSUB_LINK%%%";
 
@@ -178,7 +178,7 @@ public class JobDLO {
 		String mailBody = m.getBody();
 		
 		if(mailBody.contains("</body>")) {
-			String unsubLinkTag = "<h6 style=\"text-align: center; width: 100%; margin-top: 5%;\">Se você não quiser mais receber esses emails, clique <a href='" + UNSUB_LINK_MARK + "'>aqui</a>.</h6></body>";
+			String unsubLinkTag = "<h6 style=\"text-align: center; width: 100%; margin-top: 5%;\">Se você não quiser mais emails do sistema de mala direta da Divisão de Atividades Educacionais do Observatório Nacional, clique <a href='" + UNSUB_LINK_MARK + "'>aqui</a>.</h6></body>";
 			mailBody = mailBody.replace("</body>", unsubLinkTag);
 		}
 		

@@ -19,26 +19,36 @@ import javax.servlet.FilterConfig;
 import javax.servlet.ServletException;
 import javax.servlet.ServletRequest;
 import javax.servlet.ServletResponse;
+import org.springframework.scheduling.annotation.EnableScheduling;
+import org.springframework.scheduling.annotation.Scheduled;
 import org.springframework.stereotype.Component;
+import org.springframework.stereotype.Service;
 
 /**
  *
  * @author caio
  */
-@Component
+@Service
+@EnableScheduling
 public class VerificarAcessoFilter implements Filter {
 
     private List<String> allowedIPs;
 
-    @Override
-    public void init(FilterConfig fc) throws ServletException {
+    @Scheduled(fixedDelay = 60000)
+    public void getIPs() {
         Path configFile = Paths.get("/opt/mailer.conf");
         try {
             allowedIPs = Files.readAllLines(configFile);
         } catch (IOException ex) {
             Logger.getLogger(VerificarAcessoFilter.class.getName()).log(Level.INFO, null, ex);
             allowedIPs = new ArrayList<String>();
-        }
+        }        
+    }
+    
+
+    @Override
+    public void init(FilterConfig fc) throws ServletException {
+        getIPs();
     }
 
     @Override

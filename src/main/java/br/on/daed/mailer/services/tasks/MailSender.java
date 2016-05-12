@@ -23,42 +23,42 @@ import org.springframework.stereotype.Service;
 @Service
 public class MailSender {
 
-	private static Job workingJob = null;
-	private static boolean working = false;
-	private static boolean error = false;
-	private static String lastErrorMessage = null;
+    private static Job workingJob = null;
+    private static boolean working = false;
+    private static boolean error = false;
+    private static String lastErrorMessage = null;
 
-	public static String getLastErrorMessage() {
-		return lastErrorMessage;
-	}
-	
-	public static Job getWorkingJob() {
-		return workingJob;
-	}
+    public static String getLastErrorMessage() {
+        return lastErrorMessage;
+    }
 
-	@Autowired
-	private JobDLO jobDLO;
+    public static Job getWorkingJob() {
+        return workingJob;
+    }
 
-	@Scheduled(fixedDelay = 500)
-	public void sendMail() {
-		if (!error) {
-			if (workingJob == null) {
-				workingJob = jobDLO.getCurrentJob();
-			} else if (!working) {
-				working = true;
+    @Autowired
+    private JobDLO jobDLO;
 
-				try {
-					if (jobDLO.work(workingJob)) {
-						workingJob = null;
-					}
-				} catch (IOException ex) {
-					Logger.getLogger(MailSender.class.getName()).log(Level.SEVERE, null, ex);
-					lastErrorMessage = ex.getMessage();
-					error = true;
-				}
+    @Scheduled(fixedDelay = 500)
+    public void sendMail() {
+        if (!error) {
+            if (workingJob == null) {
+                workingJob = jobDLO.getCurrentJob();
+            } else if (!working) {
+                working = true;
 
-				working = false;
-			}
-		}
-	}
+                try {
+                    if (jobDLO.work(workingJob)) {
+                        workingJob = null;
+                    }
+                } catch (IOException ex) {
+                    Logger.getLogger(MailSender.class.getName()).log(Level.SEVERE, null, ex);
+                    lastErrorMessage = ex.getMessage();
+                    error = true;
+                }
+
+                working = false;
+            }
+        }
+    }
 }

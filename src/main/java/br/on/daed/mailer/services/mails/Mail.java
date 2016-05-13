@@ -21,6 +21,7 @@ import javax.persistence.Id;
 import javax.persistence.ManyToMany;
 import javax.persistence.MapKeyColumn;
 import javax.persistence.OneToMany;
+import javax.persistence.OrderColumn;
 import javax.persistence.SequenceGenerator;
 
 /**
@@ -35,6 +36,7 @@ public class Mail implements Serializable {
 	@GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "seq_mail")
 	private Long id;
 
+        @OrderColumn(name = "pos")
 	@ManyToMany
 	private List<Conta> to;
 

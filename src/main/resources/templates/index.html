@@ -231,7 +231,7 @@
                                 <a aria-label="Anterior" th:if="${page.first}">&laquo;</a>
                             </li>
 
-                            <li th:each="pageNo : ${#numbers.sequence(1, page.totalPages)}" th:class="${(page.number + 1) == pageNo}? 'active' : ''">
+                            <li th:each="pageNo : ${#numbers.sequence(page.number lt 10 ? 1 : page.number - 10, page.number + 10 gt page.totalPages ? page.totalPages : page.number + 10)}" th:class="${(page.number + 1) == pageNo}? 'active' : ''">
                                 <a th:if="${(page.number + 1) == pageNo}">
                                     <span th:text="${pageNo}"></span>
                                 </a>
@@ -343,7 +343,7 @@
 			/*]]>*/
         </script>
 		
-		<div style="width: 100%; position: absolute; bottom: 0; text-align: center;">
+		<div style="width: 100%; position: absolute; margin-bottom: 50px; text-align: center;">
 			<span>Seu IP de acesso: </span><span th:text="${#httpServletRequest.getHeader('x-forwarded-for') == null ? #httpServletRequest.remoteAddr : #httpServletRequest.getHeader('x-forwarded-for')}"></span>
 		</div>
 		

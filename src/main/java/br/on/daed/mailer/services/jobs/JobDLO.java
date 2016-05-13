@@ -48,268 +48,274 @@ import org.springframework.ui.ModelMap;
 @Service
 public class JobDLO {
 
-	@Autowired
-	private JobDAO dao;
+    @Autowired
+    private JobDAO dao;
 
-	@Autowired
-	private EmailLinkDAO emailLinkDAO;
+    @Autowired
+    private EmailLinkDAO emailLinkDAO;
 
-	@Autowired
-	private EmailClickDAO emailClickDAO;
+    @Autowired
+    private EmailClickDAO emailClickDAO;
 
-	@Autowired
-	private ContaDLO contaDLO;
+    @Autowired
+    private ContaDLO contaDLO;
 
-	@Value("${servidor.endereco}")
-	private String ENDERECO_SERVIDOR;
-	
-	private final String UNSUB_LINK_MARK = "%%%UNSUB_LINK%%%";
+    @Value("${servidor.endereco}")
+    private String ENDERECO_SERVIDOR;
 
-	static final Pattern HREF_PATTERN = Pattern.compile(" href=\"(.*?)\"");
+    private final String UNSUB_LINK_MARK = "%%%UNSUB_LINK%%%";
 
-	/* src: http://stackoverflow.com/questions/2221413/how-to-encode-a-mapstring-string-as-base64-string */
-	public static String serialize(Object object) throws IOException {
-		ByteArrayOutputStream byteaOut = new ByteArrayOutputStream();
-		GZIPOutputStream gzipOut = null;
-		try {
-			gzipOut = new GZIPOutputStream(new Base64OutputStream(byteaOut));
-			gzipOut.write(new Gson().toJson(object).getBytes("UTF-8"));
-		} finally {
-			if (gzipOut != null) {
-				try {
-					gzipOut.close();
-				} catch (IOException logOrIgnore) {
-				}
-			}
-		}
-		return new String(byteaOut.toByteArray());
-	}
+    static final Pattern HREF_PATTERN = Pattern.compile(" href=\"(.*?)\"");
 
-	/* src: http://stackoverflow.com/questions/2221413/how-to-encode-a-mapstring-string-as-base64-string */
-	public static <T> T deserialize(String string, Type type) throws IOException {
-		ByteArrayOutputStream byteaOut = new ByteArrayOutputStream();
-		GZIPInputStream gzipIn = null;
-		try {
-			gzipIn = new GZIPInputStream(new Base64InputStream(new ByteArrayInputStream(string.getBytes("UTF-8"))));
-			for (int data; (data = gzipIn.read()) > -1;) {
-				byteaOut.write(data);
-			}
-		} finally {
-			if (gzipIn != null) {
-				try {
-					gzipIn.close();
-				} catch (IOException logOrIgnore) {
-				}
-			}
-		}
-		return new Gson().fromJson(new String(byteaOut.toByteArray()), type);
-	}
+    /* src: http://stackoverflow.com/questions/2221413/how-to-encode-a-mapstring-string-as-base64-string */
+    public static String serialize(Object object) throws IOException {
+        ByteArrayOutputStream byteaOut = new ByteArrayOutputStream();
+        GZIPOutputStream gzipOut = null;
+        try {
+            gzipOut = new GZIPOutputStream(new Base64OutputStream(byteaOut));
+            gzipOut.write(new Gson().toJson(object).getBytes("UTF-8"));
+        } finally {
+            if (gzipOut != null) {
+                try {
+                    gzipOut.close();
+                } catch (IOException logOrIgnore) {
+                }
+            }
+        }
+        return new String(byteaOut.toByteArray());
+    }
 
-	public void indexStats(ModelMap map) {
-		long countClicks = emailClickDAO.count();
-		long countLinksGerados = emailLinkDAO.count();
+    /* src: http://stackoverflow.com/questions/2221413/how-to-encode-a-mapstring-string-as-base64-string */
+    public static <T> T deserialize(String string, Type type) throws IOException {
+        ByteArrayOutputStream byteaOut = new ByteArrayOutputStream();
+        GZIPInputStream gzipIn = null;
+        try {
+            gzipIn = new GZIPInputStream(new Base64InputStream(new ByteArrayInputStream(string.getBytes("UTF-8"))));
+            for (int data; (data = gzipIn.read()) > -1;) {
+                byteaOut.write(data);
+            }
+        } finally {
+            if (gzipIn != null) {
+                try {
+                    gzipIn.close();
+                } catch (IOException logOrIgnore) {
+                }
+            }
+        }
+        return new Gson().fromJson(new String(byteaOut.toByteArray()), type);
+    }
 
-		map.addAttribute("totalLinks", countLinksGerados);
-		map.addAttribute("totalLinksClicados", countClicks);
-	}
+    public void indexStats(ModelMap map) {
+        long countClicks = emailClickDAO.count();
+        long countLinksGerados = emailLinkDAO.count();
 
-	public void criarEmailClick(EmailLink link, Conta conta) {
-		EmailClick ec = new EmailClick();
-		ec.setEmail(conta);
-		ec.setLink(link);
-		ec.setDataclick(ZonedDateTime.now());
-		link.getClicados().add(ec);
-	}
+        map.addAttribute("totalLinks", countLinksGerados);
+        map.addAttribute("totalLinksClicados", countClicks);
+    }
 
-	public String persistUserClick(String data) throws IOException {
-		Map<String, String> deserialize = JobDLO.deserialize(data, new TypeToken<Map<String, String>>() {
-		}.getType());
-		Long id = Long.parseLong(deserialize.get("linkId"));
-		Long contaId = Long.parseLong(deserialize.get("userId"));
+    public void criarEmailClick(EmailLink link, Conta conta) {
+        EmailClick ec = new EmailClick();
+        ec.setEmail(conta);
+        ec.setLink(link);
+        ec.setDataclick(ZonedDateTime.now());
+        link.getClicados().add(ec);
+    }
 
-		EmailLink link = emailLinkDAO.findOne(id);
-		Conta conta = contaDLO.findById(contaId);
+    public String persistUserClick(String data) throws IOException {
+        Map<String, String> deserialize = JobDLO.deserialize(data, new TypeToken<Map<String, String>>() {
+        }.getType());
+        Long id = Long.parseLong(deserialize.get("linkId"));
+        Long contaId = Long.parseLong(deserialize.get("userId"));
 
-		criarEmailClick(link, conta);
+        EmailLink link = emailLinkDAO.findOne(id);
+        Conta conta = contaDLO.findById(contaId);
 
-		String ret = link.getUrl();
+        criarEmailClick(link, conta);
 
-		emailLinkDAO.flush();
+        String ret = link.getUrl();
 
-		return ret;
-	}
+        emailLinkDAO.flush();
 
-	public void replaceLinksAndSend(Mail m, Job job) throws IOException, MessagingException {
+        return ret;
+    }
 
-		String baseBody = m.getBody();
-		int idxMail = m.getCountEnviados();
+    public void replaceLinksAndSend(Mail m, Job job) throws IOException, MessagingException {
 
-		for (EmailLink link : job.getLinks()) {
-			Map<String, String> map = new HashMap();
+        String baseBody = m.getBody();
+        int idxMail = m.getCountEnviados();
 
-			map.put("linkId", link.getId().toString());
-			map.put("userId", m.getTo().get(idxMail).getId().toString());
+        for (EmailLink link : job.getLinks()) {
+            Map<String, String> map = new HashMap();
 
-			String encoded = serialize(map);
+            map.put("linkId", link.getId().toString());
+            map.put("userId", m.getTo().get(idxMail).getId().toString());
 
-			String baseUrl = link.getUrl();
-			String encodedUrl = "http://" + ENDERECO_SERVIDOR + "/" + MailerController.REQUEST_MAPPING_URL + "?d=" + encoded;
-			String replaced = m.getBody().replaceFirst(" href=\"" + baseUrl + "\"", " href=\"" + encodedUrl + "\"");
-			m.setBody(replaced);
-		}
+            String encoded = serialize(map);
 
-		MailDLO.sendMail(m);
+            String baseUrl = link.getUrl();
+            String encodedUrl = "http://" + ENDERECO_SERVIDOR + "/" + MailerController.REQUEST_MAPPING_URL + "?d=" + encoded;
+            String replaced = m.getBody().replaceFirst(" href=\"" + baseUrl + "\"", " href=\"" + encodedUrl + "\"");
+            m.setBody(replaced);
+        }
 
-		m.setBody(baseBody);
+        MailDLO.sendMail(m);
 
-		dao.save(job);
-	}
+        m.setBody(baseBody);
 
-	public void terminateJob(Job j) {
-		j.setTerminated(true);
-		dao.save(j);
-	}
+        dao.save(job);
+    }
 
-	public Job createJob(final Mail m) {
-		final Job j = new Job();
+    public void terminateJob(Job j) {
+        j.setTerminated(true);
+        dao.save(j);
+    }
 
-		j.setMail(m);
+    public Job createJob(final Mail m) {
+        final Job j = new Job();
 
-		String mailBody = m.getBody();
-		
-		if(mailBody.contains("</body>")) {
-			String unsubLinkTag = "<h6 style=\"text-align: center; width: 100%; margin-top: 5%;\">Se você não quiser mais emails do sistema de mala direta da Divisão de Atividades Educacionais do Observatório Nacional, clique <a href='" + UNSUB_LINK_MARK + "'>aqui</a>.</h6></body>";
-			mailBody = mailBody.replace("</body>", unsubLinkTag);
-		}
-		
-		m.setBody(mailBody);
-		
-		Matcher matcher = HREF_PATTERN.matcher(mailBody);
+        j.setMail(m);
 
-		final List<String> urls = new ArrayList();
+        String mailBody = m.getBody();
 
-		while (matcher.find()) {
-			String url = matcher.group(1);
-			urls.add(url);
-			/* adiciona cada link individualmente, mesmo se repetido */
-		}
+        if (mailBody.contains("</body>")) {
+            String unsubLinkTag = "<h6 style=\"text-align: center; width: 100%; margin-top: 5%;\">Se você não quiser mais emails do sistema de mala direta da Divisão de Atividades Educacionais do Observatório Nacional, clique <a href='" + UNSUB_LINK_MARK + "'>aqui</a>.</h6></body>";
+            mailBody = mailBody.replace("</body>", unsubLinkTag);
+        }
 
-		urls.forEach(new Consumer<String>() {
+        m.setBody(mailBody);
 
-			@Override
-			public void accept(String url) {
-				EmailLink el = new EmailLink();
+        Matcher matcher = HREF_PATTERN.matcher(mailBody);
 
-				el.setJob(j);
-				el.setUrl(url);
-				j.getLinks().add(el);
-			}
+        final List<String> urls = new ArrayList();
 
-		});
+        while (matcher.find()) {
+            String url = matcher.group(1);
+            urls.add(url);
+            /* adiciona cada link individualmente, mesmo se repetido */
+        }
 
-		dao.save(j);
+        urls.forEach(new Consumer<String>() {
 
-		return j;
-	}
+            @Override
+            public void accept(String url) {
+                EmailLink el = new EmailLink();
 
-	public Page<Job> getJobLog(Integer pageNumber, String assunto) {
-		PageRequest request
-				= new PageRequest(pageNumber - 1, MailerController.PAGE_SIZE, Sort.Direction.DESC, "criadoem");
+                el.setJob(j);
+                el.setUrl(url);
+                j.getLinks().add(el);
+            }
 
-		if (assunto == null) {
-			assunto = "";
-		}
+        });
 
-		return dao.findByAssunto(assunto, request);
-	}
+        dao.save(j);
 
-	public Page<EmailClick> getClickLog(Integer pageNumber, String email, String url) {
-		PageRequest request
-				= new PageRequest(pageNumber - 1, MailerController.PAGE_SIZE, Sort.Direction.DESC, "dataclick");
+        return j;
+    }
 
-		if (email == null) {
-			email = "";
-		}
+    public Page<Job> getJobLog(Integer pageNumber, String assunto) {
+        PageRequest request
+                = new PageRequest(pageNumber - 1, MailerController.PAGE_SIZE, Sort.Direction.DESC, "criadoem");
 
-		if (url == null) {
-			url = "";
-		}
+        if (assunto == null) {
+            assunto = "";
+        }
 
-		Page<EmailClick> ret = emailClickDAO.findByContaEmailUrl(email, url, request);
+        return dao.findByAssunto(assunto, request);
+    }
 
-		return ret;
-	}
+    public Page<EmailClick> getClickLog(Integer pageNumber, String email, String url) {
+        PageRequest request
+                = new PageRequest(pageNumber - 1, MailerController.PAGE_SIZE, Sort.Direction.DESC, "dataclick");
 
-	public Page<EmailLink> getLinkLog(Integer pageNumber, String assunto, String url) {
-		PageRequest request
-				= new PageRequest(pageNumber - 1, MailerController.PAGE_SIZE, Sort.Direction.DESC, "job.id", "id");
+        if (email == null) {
+            email = "";
+        }
 
-		if (assunto == null) {
-			assunto = "";
-		}
+        if (url == null) {
+            url = "";
+        }
 
-		if (url == null) {
-			url = "";
-		}
+        Page<EmailClick> ret = emailClickDAO.findByContaEmailUrl(email, url, request);
 
-		return emailLinkDAO.findByAssuntoUrl(assunto, url, request);
-	}
+        return ret;
+    }
 
-	public Job getCurrentJob() {
-		Job j = dao.findTop1ByTerminatedFalseOrderByCriadoemAsc();
-		return j;
-	}
+    public Page<EmailLink> getLinkLog(Integer pageNumber, String assunto, String url) {
+        PageRequest request
+                = new PageRequest(pageNumber - 1, MailerController.PAGE_SIZE, Sort.Direction.DESC, "job.id", "id");
 
-	private static final int LIMIT_WORK = 1;
+        if (assunto == null) {
+            assunto = "";
+        }
 
-	@Transactional
-	public boolean work(Job job) throws IOException {
+        if (url == null) {
+            url = "";
+        }
 
-		job = dao.findOne(job.getId());
-		
-		Mail m = job.getMail();
+        return emailLinkDAO.findByAssuntoUrl(assunto, url, request);
+    }
 
-		String baseBody = m.getBody();
+    public Job getCurrentJob() {
+        Job j = dao.findTop1ByTerminatedFalseOrderByCriadoemAsc();
+        return j;
+    }
 
-		for (int i = 0; i < LIMIT_WORK && m.getCountEnviados() < m.getCountTotal(); i++) {
+    private static final int LIMIT_WORK = 1;
 
-			int idxMail = m.getCountEnviados();
-			
-			String contaId = m.getTo().get(idxMail).getId().toString();
-			
-			for (EmailLink link : job.getLinks()) {
-				Map<String, String> map = new HashMap();
+    @Transactional
+    public boolean work(Job job) throws IOException {
 
-				map.put("linkId", link.getId().toString());
-				map.put("userId", contaId);
+        job = dao.findOne(job.getId());
 
-				String encoded = serialize(map);
+        Mail m = job.getMail();
 
-				String baseUrl = link.getUrl();
-				String encodedUrl = "http://" + ENDERECO_SERVIDOR + "/" + MailerController.REQUEST_MAPPING_URL + "?d=" + encoded;
-				String replaced = m.getBody().replaceFirst(" href=\"" + baseUrl + "\"", " href=\"" + encodedUrl + "\"");
-				m.setBody(replaced);
-			}
+        String baseBody = m.getBody();
 
-			if(m.getBody().contains(UNSUB_LINK_MARK)) {
-				String replaced = m.getBody();
-				String unsubUrl = "http://" + ENDERECO_SERVIDOR + "/" + MailerController.REQUEST_UNSUB_URL + "?id=" + contaId;
-				replaced = replaced.replace(UNSUB_LINK_MARK, unsubUrl);
-				m.setBody(replaced);
-			}
-			
-			MailDLO.sendMail(m);
-		}
+        for (int i = 0; i < LIMIT_WORK && m.getCountEnviados() < m.getCountTotal(); i++) {
 
-		m.setBody(baseBody);
+            int idxMail = m.getCountEnviados();
 
-		if(m.getCountEnviados().equals(m.getCountTotal())) {
-			job.setTerminated(true);
-		}
-		
-		dao.save(job);
+            String contaId = m.getTo().get(idxMail).getId().toString();
 
-		return job.isTerminated();
-	}
+            for (EmailLink link : job.getLinks()) {
+                Map<String, String> map = new HashMap();
+
+                map.put("linkId", link.getId().toString());
+                map.put("userId", contaId);
+
+                String encoded = serialize(map);
+
+                String baseUrl = link.getUrl();
+                String encodedUrl = "http://" + ENDERECO_SERVIDOR + "/" + MailerController.REQUEST_MAPPING_URL + "?d=" + encoded;
+                String replaced = m.getBody().replaceFirst(" href=\"" + baseUrl + "\"", " href=\"" + encodedUrl + "\"");
+                m.setBody(replaced);
+            }
+
+            if (m.getBody().contains(UNSUB_LINK_MARK)) {
+                String replaced = m.getBody();
+                
+                Map<String, String> map = new HashMap();
+                map.put("userId", contaId);
+
+                String encoded = serialize(map);
+                
+                String unsubUrl = "http://" + ENDERECO_SERVIDOR + "/" + MailerController.REQUEST_UNSUB_URL + "?d=" + encoded;
+                replaced = replaced.replace(UNSUB_LINK_MARK, unsubUrl);
+                m.setBody(replaced);
+            }
+
+            MailDLO.sendMail(m);
+        }
+
+        m.setBody(baseBody);
+
+        if (m.getCountEnviados().equals(m.getCountTotal())) {
+            job.setTerminated(true);
+        }
+
+        dao.save(job);
+
+        return job.isTerminated();
+    }
 
 }

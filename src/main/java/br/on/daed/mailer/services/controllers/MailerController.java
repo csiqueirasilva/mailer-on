@@ -38,251 +38,251 @@ import org.springframework.web.multipart.MultipartFile;
 @Controller
 public class MailerController {
 
-	@Autowired
-	private ContaTagDLO contaTagDLO;
+    @Autowired
+    private ContaTagDLO contaTagDLO;
 
-	@Autowired
-	private MailDLO mailer;
+    @Autowired
+    private MailDLO mailer;
 
-	@Autowired
-	private ContaDLO contaDLO;
+    @Autowired
+    private ContaDLO contaDLO;
 
-	@Autowired
-	private JobDLO jobDLO;
+    @Autowired
+    private JobDLO jobDLO;
 
-	@Autowired
-	private HttpServletRequest request;
+    @Autowired
+    private HttpServletRequest request;
 
-	final private String DEFAULT_REMETENTE = "nao-responder@on.br";
-	final private String DEFAULT_SENHA = "";
+    final private String DEFAULT_REMETENTE = "nao-responder@on.br";
+    final private String DEFAULT_SENHA = "";
 
-	final public static String REQUEST_MAPPING_URL = "url";
+    final public static String REQUEST_MAPPING_URL = "url";
 
-	final public static String REQUEST_UNSUB_URL = "unsub";
+    final public static String REQUEST_UNSUB_URL = "unsub";
 
-	final public static int PAGE_SIZE = 15;
+    final public static int PAGE_SIZE = 15;
 
-	private void setPagination(ModelMap map, String title, String url, Page page) {
-		int current = page.getNumber() + 1;
-		int begin = Math.max(1, current - 5);
-		int end = Math.min(begin + 10, page.getTotalPages());
+    private void setPagination(ModelMap map, String title, String url, Page page) {
+        int current = page.getNumber() + 1;
+        int begin = Math.max(1, current - 5);
+        int end = Math.min(begin + 10, page.getTotalPages());
 
-		map.addAttribute("paginationTitle", title);
-		map.addAttribute("paginationUrl", url);
+        map.addAttribute("paginationTitle", title);
+        map.addAttribute("paginationUrl", url);
 
-		map.addAttribute("page", page);
-		map.addAttribute("beginIndex", begin);
-		map.addAttribute("endIndex", end);
-		map.addAttribute("currentIndex", current);
+        map.addAttribute("page", page);
+        map.addAttribute("beginIndex", begin);
+        map.addAttribute("endIndex", end);
+        map.addAttribute("currentIndex", current);
 
-		map.addAttribute("queryString", request.getQueryString());
+        map.addAttribute("queryString", request.getQueryString());
 
-		map.addAttribute("paginationSize", PAGE_SIZE);
+        map.addAttribute("paginationSize", PAGE_SIZE);
 
-		map.addAttribute("pagina", "pagination");
-	}
+        map.addAttribute("pagina", "pagination");
+    }
 
-	@RequestMapping(value = "/click-list")
-	public String getClickList(ModelMap map) {
-		return getClickList(1, null, null, map);
-	}
+    @RequestMapping(value = "/click-list")
+    public String getClickList(ModelMap map) {
+        return getClickList(1, null, null, map);
+    }
 
-	@RequestMapping(value = "/click-list/{pageNumber}", method = RequestMethod.GET)
-	public String getClickList(@PathVariable Integer pageNumber, @RequestParam(required = false) String email, @RequestParam(required = false) String url, ModelMap map) {
-		Page<EmailClick> page = jobDLO.getClickLog(pageNumber, email, url);
-		setPagination(map, "Clicks efetuados", "click-list", page);
-		return "index";
-	}
+    @RequestMapping(value = "/click-list/{pageNumber}", method = RequestMethod.GET)
+    public String getClickList(@PathVariable Integer pageNumber, @RequestParam(required = false) String email, @RequestParam(required = false) String url, ModelMap map) {
+        Page<EmailClick> page = jobDLO.getClickLog(pageNumber, email, url);
+        setPagination(map, "Clicks efetuados", "click-list", page);
+        return "index";
+    }
 
-	@RequestMapping(value = "/link-list")
-	public String getLinkList(ModelMap map) {
-		return getLinkList(1, null, null, map);
-	}
+    @RequestMapping(value = "/link-list")
+    public String getLinkList(ModelMap map) {
+        return getLinkList(1, null, null, map);
+    }
 
-	@RequestMapping(value = "/link-list/{pageNumber}", method = RequestMethod.GET)
-	public String getLinkList(@PathVariable Integer pageNumber, @RequestParam(required = false) String url, @RequestParam(required = false) String assunto, ModelMap map) {
-		Page<EmailLink> page = jobDLO.getLinkLog(pageNumber, assunto, url);
-		setPagination(map, "Links gerados", "link-list", page);
-		return "index";
-	}
+    @RequestMapping(value = "/link-list/{pageNumber}", method = RequestMethod.GET)
+    public String getLinkList(@PathVariable Integer pageNumber, @RequestParam(required = false) String url, @RequestParam(required = false) String assunto, ModelMap map) {
+        Page<EmailLink> page = jobDLO.getLinkLog(pageNumber, assunto, url);
+        setPagination(map, "Links gerados", "link-list", page);
+        return "index";
+    }
 
-	@RequestMapping(value = "/conta-list")
-	public String getContaList(ModelMap map) {
-		return getContaList(1, null, null, map);
-	}
+    @RequestMapping(value = "/conta-list")
+    public String getContaList(ModelMap map) {
+        return getContaList(1, null, null, map);
+    }
 
-	@RequestMapping(value = "/conta-list/{pageNumber}", method = RequestMethod.GET)
-	public String getContaList(@PathVariable Integer pageNumber, @RequestParam(required = false) String email, @RequestParam(required = false) String tag, ModelMap map) {
+    @RequestMapping(value = "/conta-list/{pageNumber}", method = RequestMethod.GET)
+    public String getContaList(@PathVariable Integer pageNumber, @RequestParam(required = false) String email, @RequestParam(required = false) String tag, ModelMap map) {
 
-		Page<Conta> page;
+        Page<Conta> page;
 
-		if (tag != null) {
-			page = contaDLO.getContaLogByTag(pageNumber, tag);
-		} else {
-			page = contaDLO.getContaLog(pageNumber, email);
-		}
+        if (tag != null) {
+            page = contaDLO.getContaLogByTag(pageNumber, tag);
+        } else {
+            page = contaDLO.getContaLog(pageNumber, email);
+        }
 
-		setPagination(map, "Emails cadastrados", "conta-list", page);
+        setPagination(map, "Emails cadastrados", "conta-list", page);
 
-		return "index";
-	}
+        return "index";
+    }
 
-	@RequestMapping(value = "/job-list")
-	public String getJobList(ModelMap map) {
-		return getJobList(1, null, map);
-	}
+    @RequestMapping(value = "/job-list")
+    public String getJobList(ModelMap map) {
+        return getJobList(1, null, map);
+    }
 
-	@RequestMapping(value = "/job-list/{pageNumber}", method = RequestMethod.GET)
-	public String getJobList(@PathVariable Integer pageNumber, @RequestParam(required = false) String assunto, ModelMap map) {
-		Page<Job> page = jobDLO.getJobLog(pageNumber, assunto);
-		setPagination(map, "Jobs", "job-list", page);
-		return "index";
-	}
+    @RequestMapping(value = "/job-list/{pageNumber}", method = RequestMethod.GET)
+    public String getJobList(@PathVariable Integer pageNumber, @RequestParam(required = false) String assunto, ModelMap map) {
+        Page<Job> page = jobDLO.getJobLog(pageNumber, assunto);
+        setPagination(map, "Jobs", "job-list", page);
+        return "index";
+    }
 
-	@RequestMapping(value = "/" + REQUEST_UNSUB_URL, method = RequestMethod.GET)
-	public String unsub(@RequestParam("id") String data) throws IOException {
-		contaDLO.setDisabled(Long.parseLong(data));
-		return "unsub";
-	}
+    @RequestMapping(value = "/" + REQUEST_UNSUB_URL, method = RequestMethod.GET)
+    public String unsub(@RequestParam("d") String data) throws IOException {
+        contaDLO.setDisabled(data);
+        return "unsub";
+    }
 
-	@RequestMapping(value = "/" + REQUEST_MAPPING_URL, method = RequestMethod.GET)
-	public String url(@RequestParam("d") String data) throws IOException {
-		String url = jobDLO.persistUserClick(data);
-		return "redirect:" + url;
-	}
+    @RequestMapping(value = "/" + REQUEST_MAPPING_URL, method = RequestMethod.GET)
+    public String url(@RequestParam("d") String data) throws IOException {
+        String url = jobDLO.persistUserClick(data);
+        return "redirect:" + url;
+    }
 
-	@RequestMapping("/estatisticas")
-	public String getEstatisticas(ModelMap map) {
+    @RequestMapping("/estatisticas")
+    public String getEstatisticas(ModelMap map) {
 
-		contaDLO.indexStats(map);
-		jobDLO.indexStats(map);
+        contaDLO.indexStats(map);
+        jobDLO.indexStats(map);
 
-		map.addAttribute("pagina", "estatisticas");
+        map.addAttribute("pagina", "estatisticas");
 
-		return "index";
-	}
+        return "index";
+    }
 
-	@RequestMapping("/carregar-base-dados")
-	public String getCarregarBaseDados(ModelMap map) {
-		map.addAttribute("pagina", "carregar-base-dados");
+    @RequestMapping("/carregar-base-dados")
+    public String getCarregarBaseDados(ModelMap map) {
+        map.addAttribute("pagina", "carregar-base-dados");
 
-		Iterable<ContaTag> tags = contaTagDLO.findAll();
+        Iterable<ContaTag> tags = contaTagDLO.findAll();
 
-		map.addAttribute("tags", tags);
+        map.addAttribute("tags", tags);
 
-		return "index";
-	}
+        return "index";
+    }
 
-	@RequestMapping("/email-teste")
-	public String getEmailTeste(ModelMap map) {
-		map.addAttribute("pagina", "email-teste");
-		return "index";
-	}
+    @RequestMapping("/email-teste")
+    public String getEmailTeste(ModelMap map) {
+        map.addAttribute("pagina", "email-teste");
+        return "index";
+    }
 
-	@RequestMapping("/email-em-massa")
-	public String getEmailMassa(ModelMap map) {
-		map.addAttribute("pagina", "email-em-massa");
+    @RequestMapping("/email-em-massa")
+    public String getEmailMassa(ModelMap map) {
+        map.addAttribute("pagina", "email-em-massa");
 
-		Iterable<ContaTag> tags = contaTagDLO.findAll();
+        Iterable<ContaTag> tags = contaTagDLO.findAll();
 
-		map.addAttribute("tags", tags);
+        map.addAttribute("tags", tags);
 
-		return "index";
-	}
+        return "index";
+    }
 
-	@RequestMapping("/")
-	public String index(ModelMap map) throws IOException {
-		return "redirect:estatisticas";
-	}
+    @RequestMapping("/")
+    public String index(ModelMap map) throws IOException {
+        return "redirect:estatisticas";
+    }
 
-	@RequestMapping(value = "/received-mail-list", method = RequestMethod.POST)
-	public @ResponseBody
-	Boolean receiveMailList(@RequestParam("uuid") String uuid) throws UnsupportedOperationException, IOException {
-		//MailSender.enablePerform(uuid);
-		return true;
-	}
+    @RequestMapping(value = "/received-mail-list", method = RequestMethod.POST)
+    public @ResponseBody
+    Boolean receiveMailList(@RequestParam("uuid") String uuid) throws UnsupportedOperationException, IOException {
+        //MailSender.enablePerform(uuid);
+        return true;
+    }
 
-	private String fromFileToString(MultipartFile arquivo) throws UnsupportedEncodingException, IOException {
-		File arquivoCorpo = new File(System.getProperty("java.io.tmpdir") + File.separator + "corpo" + System.currentTimeMillis());
-		arquivo.transferTo(arquivoCorpo);
-		byte[] encoded = Files.readAllBytes(Paths.get(arquivoCorpo.getAbsolutePath()));
-		String HTML = new String(encoded, "UTF-8");
-		return HTML;
-	}
+    private String fromFileToString(MultipartFile arquivo) throws UnsupportedEncodingException, IOException {
+        File arquivoCorpo = new File(System.getProperty("java.io.tmpdir") + File.separator + "corpo" + System.currentTimeMillis());
+        arquivo.transferTo(arquivoCorpo);
+        byte[] encoded = Files.readAllBytes(Paths.get(arquivoCorpo.getAbsolutePath()));
+        String HTML = new String(encoded, "UTF-8");
+        return HTML;
+    }
 
-	@RequestMapping(value = "/send-debug-mail-list", method = RequestMethod.POST)
-	public @ResponseBody
-	String sendTestMail(
-			@RequestParam("destino") String destino,
-			@RequestParam("arquivo") MultipartFile arquivo,
-			@RequestParam("assunto") String assunto) throws IOException {
+    @RequestMapping(value = "/send-debug-mail-list", method = RequestMethod.POST)
+    public @ResponseBody
+    String sendTestMail(
+            @RequestParam("destino") String destino,
+            @RequestParam("arquivo") MultipartFile arquivo,
+            @RequestParam("assunto") String assunto) throws IOException {
 
-		String ret = "null";
+        String ret = "null";
 
-		try {
-			String HTML = fromFileToString(arquivo);
-			Mail m = mailer.criarMail(destino, DEFAULT_REMETENTE, DEFAULT_SENHA, HTML, assunto);
+        try {
+            String HTML = fromFileToString(arquivo);
+            Mail m = mailer.criarMail(destino, DEFAULT_REMETENTE, DEFAULT_SENHA, HTML, assunto);
 
-			if (m != null) {
-				jobDLO.createJob(m);
-				ret = "true";
-			}
+            if (m != null) {
+                jobDLO.createJob(m);
+                ret = "true";
+            }
 
-		} catch (Exception e) {
-			ret = "false";
-			e.printStackTrace();
-		}
+        } catch (Exception e) {
+            ret = "false";
+            e.printStackTrace();
+        }
 
-		return iframeReturn(ret, "alertaEmailTeste");
-	}
+        return iframeReturn(ret, "alertaEmailTeste");
+    }
 
-	@RequestMapping(value = "/send-mail-list", method = RequestMethod.POST)
-	public @ResponseBody
-	String sendMailList(
-			@RequestParam("arquivo") MultipartFile arquivo,
-			@RequestParam("assunto") String assunto,
-			@RequestParam("tags") String tags) throws IOException {
+    @RequestMapping(value = "/send-mail-list", method = RequestMethod.POST)
+    public @ResponseBody
+    String sendMailList(
+            @RequestParam("arquivo") MultipartFile arquivo,
+            @RequestParam("assunto") String assunto,
+            @RequestParam("tags") String tags) throws IOException {
 
-		String ret = "null";
+        String ret = "null";
 
-		try {
-			String HTML = fromFileToString(arquivo);
-			
-			Mail m = mailer.criarMailWithTags(DEFAULT_REMETENTE, DEFAULT_SENHA, HTML, assunto, tags);
+        try {
+            String HTML = fromFileToString(arquivo);
 
-			if (m != null) {
-				jobDLO.createJob(m);
-				ret = "true";
-			}
+            Mail m = mailer.criarMailWithTags(DEFAULT_REMETENTE, DEFAULT_SENHA, HTML, assunto, tags);
 
-		} catch (Exception e) {
-			e.printStackTrace();
-			ret = "false";
-		}
+            if (m != null) {
+                jobDLO.createJob(m);
+                ret = "true";
+            }
 
-		return iframeReturn(ret, "alertaEmailMassa");
-	}
+        } catch (Exception e) {
+            e.printStackTrace();
+            ret = "false";
+        }
 
-	@RequestMapping(value = "/load-mail-list", method = RequestMethod.POST)
-	public @ResponseBody
-	String loadMailList(@RequestParam("arquivo") final MultipartFile arquivo, @RequestParam("tags") String tags) throws IOException {
+        return iframeReturn(ret, "alertaEmailMassa");
+    }
 
-		String ret = "null";
+    @RequestMapping(value = "/load-mail-list", method = RequestMethod.POST)
+    public @ResponseBody
+    String loadMailList(@RequestParam("arquivo") final MultipartFile arquivo, @RequestParam("tags") String tags) throws IOException {
 
-		try {
-			File arquivoCorpo = new File(System.getProperty("java.io.tmpdir") + File.separator + "corpo" + System.currentTimeMillis());
-			arquivoCorpo.deleteOnExit();
-			arquivo.transferTo(arquivoCorpo);
-			List<String> listaEmail = Files.readAllLines(Paths.get(arquivoCorpo.getAbsolutePath()));
-			ret = contaDLO.inserirEmails(listaEmail, tags).toString();
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
+        String ret = "null";
 
-		return iframeReturn(ret, "alertaCarregarBaseDeDados");
-	}
+        try {
+            File arquivoCorpo = new File(System.getProperty("java.io.tmpdir") + File.separator + "corpo" + System.currentTimeMillis());
+            arquivoCorpo.deleteOnExit();
+            arquivo.transferTo(arquivoCorpo);
+            List<String> listaEmail = Files.readAllLines(Paths.get(arquivoCorpo.getAbsolutePath()));
+            ret = contaDLO.inserirEmails(listaEmail, tags).toString();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
 
-	private String iframeReturn(String val, String funcao) {
-		return "<div id='retorno'>" + val + "</div><script>window.parent.window." + funcao + "(document.getElementById('retorno').innerHTML);</script>";
-	}
+        return iframeReturn(ret, "alertaCarregarBaseDeDados");
+    }
+
+    private String iframeReturn(String val, String funcao) {
+        return "<div id='retorno'>" + val + "</div><script>window.parent.window." + funcao + "(document.getElementById('retorno').innerHTML);</script>";
+    }
 }

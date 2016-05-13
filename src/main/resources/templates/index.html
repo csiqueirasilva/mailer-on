@@ -342,6 +342,10 @@
 
 			/*]]>*/
         </script>
-
+		
+		<div style="width: 100%; position: absolute; bottom: 0; text-align: center;">
+			<span>Seu IP de acesso: </span><span th:text="${#httpServletRequest.getHeader('x-forwarded-for') == null ? #httpServletRequest.remoteAddr : #httpServletRequest.getHeader('x-forwarded-for')}"></span>
+		</div>
+		
     </body>
 </html>

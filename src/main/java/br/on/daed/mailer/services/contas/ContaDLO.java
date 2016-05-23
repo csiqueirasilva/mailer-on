@@ -72,16 +72,14 @@ public class ContaDLO {
 
         final List<ContaTag> persistedTags = contaTagDLO.persistTags(purgedTags);
 
-        final List<String> parsedEmails = new ArrayList<String>();
+        final Set<String> purgedEmails = new TreeSet();
         
         for(String email : emails) {
-            email = email.replace(" ", "");
+            email = email.replace(" ", "").toLowerCase();
             if(MailDLO.validar(email)) {
-                parsedEmails.add(email);
+                purgedEmails.add(email);
             }
         }
-        
-        final Set<String> purgedEmails = new TreeSet(parsedEmails);
         
         try {
             Iterable<Conta> findByEmail = contaDAO.findByEmailIn(purgedEmails);

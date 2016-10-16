@@ -39,7 +39,7 @@ public class MailSender {
     @Autowired
     private JobDLO jobDLO;
 
-    @Scheduled(fixedDelay = 500)
+    @Scheduled(fixedDelay = 50)
     public void sendMail() {
         if (!error) {
             if (workingJob == null) {
